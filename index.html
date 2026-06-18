@@ -1,0 +1,1422 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>EXTINCTIUM — Suivi Déplacements</title>
+<style>
+  :root {
+    --rouge: #C0392B;
+    --rouge-dark: #922B21;
+    --rouge-light: #E74C3C;
+    --orange: #E67E22;
+    --gris-fonce: #1a1a1a;
+    --gris-moyen: #2d2d2d;
+    --gris-clair: #3d3d3d;
+    --gris-texte: #aaaaaa;
+    --blanc: #f5f5f5;
+    --blanc-pur: #ffffff;
+    --vert: #27AE60;
+    --bleu: #2980B9;
+    --fond: #111111;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    background: var(--fond);
+    color: var(--blanc);
+    min-height: 100vh;
+    font-size: 15px;
+  }
+
+  /* ── HEADER ── */
+  .header {
+    background: linear-gradient(135deg, var(--gris-fonce) 0%, #1f1f1f 100%);
+    border-bottom: 3px solid var(--rouge);
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .header-logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .header-logo .flame {
+    font-size: 24px;
+  }
+  .header-title {
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    color: var(--blanc-pur);
+    text-transform: uppercase;
+  }
+  .header-subtitle {
+    font-size: 10px;
+    color: var(--rouge-light);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+  .header-user {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    color: var(--gris-texte);
+  }
+  .user-badge {
+    background: var(--rouge);
+    color: white;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1px;
+  }
+  .btn-logout {
+    background: transparent;
+    border: 1px solid var(--gris-clair);
+    color: var(--gris-texte);
+    padding: 4px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 11px;
+    transition: all .2s;
+  }
+  .btn-logout:hover { border-color: var(--rouge); color: var(--rouge); }
+
+  /* ── PAGES ── */
+  .page { display: none; padding: 20px; max-width: 700px; margin: 0 auto; }
+  .page.active { display: block; }
+
+  /* ── LOGIN ── */
+  #page-login {
+    max-width: 420px;
+    margin: 0 auto;
+    padding-top: 60px;
+  }
+  .login-card {
+    background: var(--gris-moyen);
+    border-radius: 16px;
+    padding: 40px 30px;
+    border: 1px solid var(--gris-clair);
+  }
+  .login-logo {
+    text-align: center;
+    margin-bottom: 30px;
+  }
+  .login-logo .big-flame { font-size: 48px; }
+  .login-logo h1 {
+    font-size: 22px;
+    font-weight: 800;
+    letter-spacing: 3px;
+    color: var(--blanc-pur);
+    margin-top: 8px;
+  }
+  .login-logo p { font-size: 12px; color: var(--rouge-light); letter-spacing: 2px; margin-top: 4px; }
+  .form-group { margin-bottom: 18px; }
+  .form-group label {
+    display: block;
+    font-size: 11px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--gris-texte);
+    margin-bottom: 6px;
+    font-weight: 600;
+  }
+  select, input[type="text"], input[type="date"], input[type="time"], input[type="password"], textarea {
+    width: 100%;
+    background: var(--gris-clair);
+    border: 1px solid #444;
+    color: var(--blanc-pur);
+    padding: 12px 14px;
+    border-radius: 8px;
+    font-size: 15px;
+    outline: none;
+    transition: border-color .2s;
+    font-family: inherit;
+  }
+  select:focus, input:focus, textarea:focus { border-color: var(--rouge); }
+  textarea { resize: vertical; min-height: 70px; }
+
+  /* PIN */
+  .pin-container {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin: 20px 0;
+  }
+  .pin-dot {
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    background: var(--gris-clair);
+    border: 2px solid #555;
+    transition: all .2s;
+  }
+  .pin-dot.filled { background: var(--rouge); border-color: var(--rouge); }
+  .pin-keypad {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    max-width: 240px;
+    margin: 0 auto;
+  }
+  .pin-key {
+    background: var(--gris-clair);
+    border: 1px solid #444;
+    color: var(--blanc-pur);
+    padding: 16px;
+    border-radius: 10px;
+    font-size: 20px;
+    font-weight: 600;
+    cursor: pointer;
+    text-align: center;
+    transition: all .15s;
+    user-select: none;
+  }
+  .pin-key:active { transform: scale(0.94); background: var(--rouge); }
+  .pin-key.del { font-size: 16px; color: var(--gris-texte); }
+  .pin-key.zero { grid-column: 2; }
+
+  /* ── BUTTONS ── */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 13px 22px;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: all .2s;
+    letter-spacing: .5px;
+    width: 100%;
+  }
+  .btn-primary { background: var(--rouge); color: white; }
+  .btn-primary:hover { background: var(--rouge-dark); }
+  .btn-primary:disabled { background: #555; cursor: not-allowed; }
+  .btn-secondary { background: var(--gris-clair); color: var(--blanc); border: 1px solid #555; }
+  .btn-secondary:hover { background: #4a4a4a; }
+  .btn-success { background: var(--vert); color: white; }
+  .btn-success:hover { background: #219a52; }
+  .btn-warning { background: var(--orange); color: white; }
+
+  /* ── NAV TABS ── */
+  .nav-tabs {
+    display: flex;
+    background: var(--gris-moyen);
+    border-radius: 12px;
+    padding: 4px;
+    margin-bottom: 24px;
+    border: 1px solid var(--gris-clair);
+  }
+  .nav-tab {
+    flex: 1;
+    padding: 10px 6px;
+    text-align: center;
+    border-radius: 9px;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--gris-texte);
+    transition: all .2s;
+    letter-spacing: .5px;
+  }
+  .nav-tab.active {
+    background: var(--rouge);
+    color: white;
+  }
+
+  /* ── CARDS ── */
+  .card {
+    background: var(--gris-moyen);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 16px;
+    border: 1px solid var(--gris-clair);
+  }
+  .card-title {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--rouge-light);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  /* ── SAISIE FORM ── */
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  .form-row-3 {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 12px;
+  }
+  @media (max-width: 480px) {
+    .form-row, .form-row-3 { grid-template-columns: 1fr; }
+  }
+
+  .radio-group {
+    display: flex;
+    gap: 10px;
+  }
+  .radio-option {
+    flex: 1;
+    background: var(--gris-clair);
+    border: 2px solid #444;
+    border-radius: 8px;
+    padding: 10px;
+    text-align: center;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    transition: all .2s;
+    color: var(--gris-texte);
+  }
+  .radio-option.selected {
+    border-color: var(--rouge);
+    color: var(--blanc-pur);
+    background: rgba(192,57,43,0.15);
+  }
+
+  /* ── TABLEAU SAISIES ── */
+  .saisie-item {
+    background: var(--gris-moyen);
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin-bottom: 10px;
+    border: 1px solid var(--gris-clair);
+    border-left: 4px solid var(--rouge);
+  }
+  .saisie-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+  .saisie-nom {
+    font-weight: 700;
+    color: var(--blanc-pur);
+    font-size: 15px;
+  }
+  .saisie-date {
+    font-size: 12px;
+    color: var(--gris-texte);
+  }
+  .saisie-infos {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 6px;
+  }
+  .tag {
+    background: var(--gris-clair);
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    color: var(--gris-texte);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .tag.rouge { background: rgba(192,57,43,0.2); color: var(--rouge-light); }
+  .tag.vert { background: rgba(39,174,96,0.2); color: #2ecc71; }
+  .tag.bleu { background: rgba(41,128,185,0.2); color: #5dade2; }
+  .tag.orange { background: rgba(230,126,34,0.2); color: #f39c12; }
+  .amplitude-badge {
+    background: var(--rouge);
+    color: white;
+    font-weight: 700;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 13px;
+  }
+
+  /* ── STATS ── */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  .stat-card {
+    background: var(--gris-moyen);
+    border-radius: 10px;
+    padding: 16px;
+    border: 1px solid var(--gris-clair);
+    text-align: center;
+  }
+  .stat-value {
+    font-size: 28px;
+    font-weight: 800;
+    color: var(--rouge-light);
+    line-height: 1;
+  }
+  .stat-label {
+    font-size: 11px;
+    color: var(--gris-texte);
+    margin-top: 4px;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+  }
+
+  /* ── BAR CHART ── */
+  .chart-container { margin-top: 10px; }
+  .chart-bar-row {
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px;
+    gap: 8px;
+  }
+  .chart-label {
+    width: 90px;
+    font-size: 12px;
+    color: var(--blanc);
+    font-weight: 600;
+    text-align: right;
+    flex-shrink: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .chart-bar-bg {
+    flex: 1;
+    height: 22px;
+    background: var(--gris-clair);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .chart-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--rouge-dark), var(--rouge-light));
+    border-radius: 4px;
+    transition: width .5s ease;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding-right: 6px;
+  }
+  .chart-bar-val {
+    font-size: 11px;
+    font-weight: 700;
+    color: white;
+    white-space: nowrap;
+  }
+
+  /* ── ADMIN EMPLOYES ── */
+  .employe-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 14px;
+    background: var(--gris-moyen);
+    border-radius: 8px;
+    margin-bottom: 8px;
+    border: 1px solid var(--gris-clair);
+  }
+  .employe-info { display: flex; flex-direction: column; gap: 2px; }
+  .employe-name { font-weight: 700; font-size: 15px; }
+  .employe-pin { font-size: 11px; color: var(--gris-texte); }
+  .employe-actions { display: flex; gap: 6px; }
+  .btn-sm {
+    padding: 5px 12px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: all .2s;
+  }
+  .btn-sm-danger { background: rgba(192,57,43,0.2); color: var(--rouge-light); border: 1px solid rgba(192,57,43,0.3); }
+  .btn-sm-danger:hover { background: var(--rouge); color: white; }
+
+  /* ── ALERTS ── */
+  .alert {
+    padding: 12px 16px;
+    border-radius: 8px;
+    margin-bottom: 16px;
+    font-size: 13px;
+    font-weight: 500;
+    display: none;
+  }
+  .alert.show { display: block; }
+  .alert-error { background: rgba(192,57,43,0.2); border: 1px solid var(--rouge); color: #ff6b6b; }
+  .alert-success { background: rgba(39,174,96,0.2); border: 1px solid var(--vert); color: #2ecc71; }
+  .alert-info { background: rgba(41,128,185,0.2); border: 1px solid var(--bleu); color: #5dade2; }
+
+  /* ── LOADER ── */
+  .loader {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 40px;
+    color: var(--gris-texte);
+    font-size: 13px;
+    gap: 10px;
+  }
+  .spinner {
+    width: 20px; height: 20px;
+    border: 2px solid var(--gris-clair);
+    border-top-color: var(--rouge);
+    border-radius: 50%;
+    animation: spin .8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ── EMPTY STATE ── */
+  .empty-state {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--gris-texte);
+  }
+  .empty-state .icon { font-size: 36px; margin-bottom: 10px; }
+  .empty-state p { font-size: 13px; }
+
+  /* ── MODAL ── */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    z-index: 200;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  .modal-overlay.show { display: flex; }
+  .modal {
+    background: var(--gris-moyen);
+    border-radius: 16px;
+    padding: 28px;
+    width: 100%;
+    max-width: 400px;
+    border: 1px solid var(--gris-clair);
+  }
+  .modal-title {
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 20px;
+    color: var(--blanc-pur);
+  }
+  .modal-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+  }
+
+  /* ── FILTER BAR ── */
+  .filter-bar {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+  }
+  .filter-bar select {
+    flex: 1;
+    min-width: 120px;
+    padding: 9px 12px;
+    font-size: 13px;
+  }
+
+  /* ── EXPORT BTN ── */
+  .export-row {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+  .export-row .btn { width: auto; flex: 1; font-size: 12px; padding: 10px; }
+
+  .section-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--blanc-pur);
+    margin-bottom: 4px;
+  }
+  .section-sub {
+    font-size: 12px;
+    color: var(--gris-texte);
+    margin-bottom: 20px;
+  }
+
+  /* WELCOME SCREEN pour user */
+  .welcome-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-top: 20px;
+  }
+  .welcome-action {
+    background: var(--gris-moyen);
+    border: 1px solid var(--gris-clair);
+    border-radius: 12px;
+    padding: 20px 16px;
+    text-align: center;
+    cursor: pointer;
+    transition: all .2s;
+  }
+  .welcome-action:hover { border-color: var(--rouge); background: rgba(192,57,43,0.1); }
+  .welcome-action .wa-icon { font-size: 28px; margin-bottom: 8px; }
+  .welcome-action .wa-label { font-size: 12px; font-weight: 600; color: var(--blanc); }
+  .welcome-action .wa-sub { font-size: 11px; color: var(--gris-texte); margin-top: 3px; }
+
+  .info-banner {
+    background: rgba(192,57,43,0.1);
+    border: 1px solid rgba(192,57,43,0.3);
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .info-banner .ib-icon { font-size: 22px; }
+  .info-banner .ib-text { font-size: 13px; color: var(--blanc); }
+  .info-banner .ib-text strong { color: var(--rouge-light); }
+</style>
+</head>
+<body>
+
+<!-- ══ HEADER ══ -->
+<div class="header" id="app-header" style="display:none">
+  <div class="header-logo">
+    <span class="flame">🔥</span>
+    <div>
+      <div class="header-title">EXTINCTIUM</div>
+      <div class="header-subtitle">Suivi Déplacements</div>
+    </div>
+  </div>
+  <div class="header-user">
+    <span id="header-nom"></span>
+    <span class="user-badge" id="header-role"></span>
+    <button class="btn-logout" onclick="logout()">Déco</button>
+  </div>
+</div>
+
+<!-- ══ PAGE LOGIN ══ -->
+<div class="page active" id="page-login">
+  <div class="login-card">
+    <div class="login-logo">
+      <div class="big-flame">🔥</div>
+      <h1>EXTINCTIUM</h1>
+      <p>SUIVI DÉPLACEMENTS</p>
+    </div>
+
+    <div class="form-group">
+      <label>Votre nom</label>
+      <select id="login-select">
+        <option value="">-- Sélectionnez --</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label>Code PIN</label>
+      <div class="pin-container" id="pin-display">
+        <div class="pin-dot" id="d0"></div>
+        <div class="pin-dot" id="d1"></div>
+        <div class="pin-dot" id="d2"></div>
+        <div class="pin-dot" id="d3"></div>
+        <div class="pin-dot" id="d4"></div>
+        <div class="pin-dot" id="d5"></div>
+      </div>
+      <div class="pin-keypad">
+        <div class="pin-key" onclick="pinKey('1')">1</div>
+        <div class="pin-key" onclick="pinKey('2')">2</div>
+        <div class="pin-key" onclick="pinKey('3')">3</div>
+        <div class="pin-key" onclick="pinKey('4')">4</div>
+        <div class="pin-key" onclick="pinKey('5')">5</div>
+        <div class="pin-key" onclick="pinKey('6')">6</div>
+        <div class="pin-key" onclick="pinKey('7')">7</div>
+        <div class="pin-key" onclick="pinKey('8')">8</div>
+        <div class="pin-key" onclick="pinKey('9')">9</div>
+        <div class="pin-key del" onclick="pinDel()">⌫</div>
+        <div class="pin-key zero" onclick="pinKey('0')">0</div>
+      </div>
+    </div>
+
+    <div class="alert alert-error" id="login-error">PIN incorrect ou employé non sélectionné.</div>
+    <div class="loader" id="login-loader" style="display:none"><div class="spinner"></div> Connexion...</div>
+  </div>
+</div>
+
+<!-- ══ PAGE ACCUEIL EMPLOYÉ ══ -->
+<div class="page" id="page-accueil">
+  <div class="info-banner">
+    <span class="ib-icon">👋</span>
+    <div class="ib-text">Bonjour <strong id="accueil-nom"></strong> ! Que souhaitez-vous faire ?</div>
+  </div>
+  <div class="welcome-grid">
+    <div class="welcome-action" onclick="showPage('page-saisie')">
+      <div class="wa-icon">⏱️</div>
+      <div class="wa-label">Nouvelle saisie</div>
+      <div class="wa-sub">Enregistrer un déplacement</div>
+    </div>
+    <div class="welcome-action" onclick="showMesSaisies()">
+      <div class="wa-icon">📋</div>
+      <div class="wa-label">Mes saisies</div>
+      <div class="wa-sub">Voir mon historique</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ PAGE SAISIE ══ -->
+<div class="page" id="page-saisie">
+  <div class="section-title">⏱️ Nouvelle saisie</div>
+  <div class="section-sub">Enregistrez votre déplacement</div>
+
+  <div class="card">
+    <div class="form-group">
+      <label>📅 Date</label>
+      <input type="date" id="s-date">
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>🕐 Heure départ</label>
+        <input type="time" id="s-depart">
+      </div>
+      <div class="form-group">
+        <label>🕐 Heure retour</label>
+        <input type="time" id="s-retour">
+      </div>
+    </div>
+    <div class="form-group" id="amplitude-preview" style="display:none">
+      <div class="tag vert" style="font-size:13px; padding:8px 14px; width:fit-content">
+        ⏱️ Amplitude : <strong id="amp-val">0h00</strong>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>📍 Site d'intervention</label>
+      <input type="text" id="s-site" placeholder="Ex: Site EDF Dampierre">
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>🏙️ Ville</label>
+        <input type="text" id="s-ville" placeholder="Ex: Orléans">
+      </div>
+      <div class="form-group">
+        <label>🚛 Camion</label>
+        <input type="text" id="s-camion" placeholder="Ex: EX-01">
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>👥 Déplacement</label>
+      <div class="radio-group">
+        <div class="radio-option selected" id="opt-seul" onclick="selectPresence('seul')">Seul</div>
+        <div class="radio-option" id="opt-equipe" onclick="selectPresence('equipe')">En équipe</div>
+      </div>
+    </div>
+
+    <div class="form-group" id="avec-qui-group" style="display:none">
+      <label>👤 Avec qui ?</label>
+      <input type="text" id="s-avec-qui" placeholder="Prénom(s) des collègues">
+    </div>
+
+    <div class="form-group">
+      <label>💬 Commentaire (optionnel)</label>
+      <textarea id="s-commentaire" placeholder="Informations complémentaires..."></textarea>
+    </div>
+  </div>
+
+  <div class="alert alert-error" id="saisie-error"></div>
+  <div class="alert alert-success" id="saisie-success"></div>
+
+  <button class="btn btn-primary" onclick="saveSaisie()" id="btn-save">
+    💾 Enregistrer le déplacement
+  </button>
+  <button class="btn btn-secondary" style="margin-top:10px" onclick="backToAccueil()">
+    ← Retour
+  </button>
+</div>
+
+<!-- ══ PAGE MES SAISIES ══ -->
+<div class="page" id="page-mes-saisies">
+  <div class="section-title">📋 Mes déplacements</div>
+  <div class="section-sub" id="mes-saisies-sub">Mon historique</div>
+  <div id="mes-saisies-list"><div class="loader"><div class="spinner"></div> Chargement...</div></div>
+  <button class="btn btn-secondary" style="margin-top:16px" onclick="backToAccueil()">← Retour</button>
+</div>
+
+<!-- ══ PAGE ADMIN ══ -->
+<div class="page" id="page-admin">
+  <div class="nav-tabs">
+    <div class="nav-tab active" onclick="adminTab('tableau')">📊 Tableau</div>
+    <div class="nav-tab" onclick="adminTab('stats')">📈 Stats</div>
+    <div class="nav-tab" onclick="adminTab('employes')">👥 Équipe</div>
+  </div>
+
+  <!-- TABLEAU -->
+  <div id="admin-tableau">
+    <div class="filter-bar">
+      <select id="filter-employe" onchange="loadAdminSaisies()">
+        <option value="">Tous les employés</option>
+      </select>
+      <select id="filter-mois" onchange="loadAdminSaisies()">
+        <option value="">Tous les mois</option>
+      </select>
+    </div>
+    <div class="export-row">
+      <button class="btn btn-secondary" onclick="exportCSV()">📥 Export CSV</button>
+    </div>
+    <div id="admin-saisies-list"><div class="loader"><div class="spinner"></div> Chargement...</div></div>
+  </div>
+
+  <!-- STATS -->
+  <div id="admin-stats" style="display:none">
+    <div class="stats-grid" id="stats-global"></div>
+    <div class="card">
+      <div class="card-title">🏆 Déplacements par employé</div>
+      <div class="chart-container" id="chart-deplacements"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">⏱️ Amplitude moyenne (heures)</div>
+      <div class="chart-container" id="chart-amplitude"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">📅 Activité par mois</div>
+      <div class="chart-container" id="chart-mois"></div>
+    </div>
+  </div>
+
+  <!-- EMPLOYES -->
+  <div id="admin-employes" style="display:none">
+    <div class="card">
+      <div class="card-title">➕ Ajouter un employé</div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Nom</label>
+          <input type="text" id="new-nom" placeholder="Prénom Nom">
+        </div>
+        <div class="form-group">
+          <label>PIN (4-6 chiffres)</label>
+          <input type="text" id="new-pin" placeholder="Ex: 1234" maxlength="6">
+        </div>
+      </div>
+      <button class="btn btn-success" onclick="addEmploye()">➕ Ajouter</button>
+      <div class="alert alert-success" id="emp-success"></div>
+      <div class="alert alert-error" id="emp-error"></div>
+    </div>
+    <div id="employes-list"><div class="loader"><div class="spinner"></div> Chargement...</div></div>
+  </div>
+</div>
+
+<!-- ══ MODAL CONFIRMATION ══ -->
+<div class="modal-overlay" id="modal-confirm">
+  <div class="modal">
+    <div class="modal-title" id="modal-title">Confirmer</div>
+    <div id="modal-body" style="font-size:14px; color:var(--gris-texte)"></div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeModal()">Annuler</button>
+      <button class="btn btn-primary" id="modal-confirm-btn">Confirmer</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════
+// CONFIG SUPABASE
+// ══════════════════════════════════════════
+const SUPABASE_URL = 'https://qafirvogcemuahistgyr.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_bZfvFFsCYARQZZECQXzPjg_w3aAdG5k';
+
+const api = {
+  async get(table, params = '') {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}?${params}`, {
+      headers: {
+        'apikey': SUPABASE_KEY,
+        'Authorization': `Bearer ${SUPABASE_KEY}`,
+        'Content-Type': 'application/json'
+      }
+    });
+    if (!res.ok) throw new Error(await res.text());
+    return res.json();
+  },
+  async post(table, data) {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}`, {
+      method: 'POST',
+      headers: {
+        'apikey': SUPABASE_KEY,
+        'Authorization': `Bearer ${SUPABASE_KEY}`,
+        'Content-Type': 'application/json',
+        'Prefer': 'return=representation'
+      },
+      body: JSON.stringify(data)
+    });
+    if (!res.ok) throw new Error(await res.text());
+    return res.json();
+  },
+  async patch(table, id, data) {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}?id=eq.${id}`, {
+      method: 'PATCH',
+      headers: {
+        'apikey': SUPABASE_KEY,
+        'Authorization': `Bearer ${SUPABASE_KEY}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(data)
+    });
+    if (!res.ok) throw new Error(await res.text());
+    return true;
+  },
+  async delete(table, id) {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}?id=eq.${id}`, {
+      method: 'DELETE',
+      headers: {
+        'apikey': SUPABASE_KEY,
+        'Authorization': `Bearer ${SUPABASE_KEY}`
+      }
+    });
+    if (!res.ok) throw new Error(await res.text());
+    return true;
+  }
+};
+
+// ══════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════
+let currentUser = null;
+let pinBuffer = '';
+let modePresence = 'seul';
+let allSaisies = [];
+let allEmployes = [];
+
+// ══════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════
+window.addEventListener('DOMContentLoaded', async () => {
+  await loadEmployesLogin();
+  const today = new Date().toISOString().split('T')[0];
+  document.getElementById('s-date').value = today;
+
+  // Calcul amplitude en temps réel
+  document.getElementById('s-depart').addEventListener('change', calcAmplitude);
+  document.getElementById('s-retour').addEventListener('change', calcAmplitude);
+});
+
+async function loadEmployesLogin() {
+  try {
+    const employes = await api.get('employes', 'actif=eq.true&order=nom.asc&select=id,nom');
+    const sel = document.getElementById('login-select');
+    employes.forEach(e => {
+      const opt = document.createElement('option');
+      opt.value = e.id;
+      opt.textContent = e.nom;
+      sel.appendChild(opt);
+    });
+  } catch(err) {
+    console.error('Erreur chargement employés:', err);
+  }
+}
+
+// ══════════════════════════════════════════
+// PIN KEYPAD
+// ══════════════════════════════════════════
+function pinKey(k) {
+  if (pinBuffer.length >= 6) return;
+  pinBuffer += k;
+  updatePinDisplay();
+  if (pinBuffer.length >= 4) {
+    // Auto-tentative si PIN complet selon longueur attendue
+    setTimeout(() => {
+      if (pinBuffer.length === 6) tryLogin();
+    }, 100);
+  }
+}
+
+function pinDel() {
+  pinBuffer = pinBuffer.slice(0, -1);
+  updatePinDisplay();
+}
+
+function updatePinDisplay() {
+  for (let i = 0; i < 6; i++) {
+    document.getElementById('d' + i).classList.toggle('filled', i < pinBuffer.length);
+  }
+  document.getElementById('login-error').classList.remove('show');
+}
+
+async function tryLogin() {
+  const empId = document.getElementById('login-select').value;
+  if (!empId) {
+    showAlert('login-error', 'Veuillez sélectionner votre nom.');
+    pinBuffer = ''; updatePinDisplay(); return;
+  }
+
+  document.getElementById('login-loader').style.display = 'flex';
+
+  try {
+    const result = await api.get('employes', `id=eq.${empId}&pin=eq.${pinBuffer}&actif=eq.true&select=*`);
+    document.getElementById('login-loader').style.display = 'none';
+
+    if (result.length === 0) {
+      showAlert('login-error', 'PIN incorrect. Réessayez.');
+      pinBuffer = ''; updatePinDisplay(); return;
+    }
+
+    currentUser = result[0];
+    onLogin();
+  } catch(err) {
+    document.getElementById('login-loader').style.display = 'none';
+    showAlert('login-error', 'Erreur de connexion. Vérifiez votre réseau.');
+    pinBuffer = ''; updatePinDisplay();
+  }
+}
+
+function onLogin() {
+  document.getElementById('app-header').style.display = 'flex';
+  document.getElementById('header-nom').textContent = currentUser.nom;
+  document.getElementById('header-role').textContent = currentUser.role === 'admin' ? 'ADMIN' : 'EMPLOYÉ';
+  document.getElementById('accueil-nom').textContent = currentUser.nom;
+
+  if (currentUser.role === 'admin') {
+    showPage('page-admin');
+    loadAdminSaisies();
+    loadFilterEmployes();
+    loadFilterMois();
+  } else {
+    showPage('page-accueil');
+  }
+}
+
+function logout() {
+  currentUser = null;
+  pinBuffer = '';
+  updatePinDisplay();
+  document.getElementById('login-select').value = '';
+  document.getElementById('app-header').style.display = 'none';
+  showPage('page-login');
+}
+
+// ══════════════════════════════════════════
+// NAVIGATION
+// ══════════════════════════════════════════
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function backToAccueil() {
+  if (currentUser.role === 'admin') showPage('page-admin');
+  else showPage('page-accueil');
+}
+
+function showMesSaisies() {
+  showPage('page-mes-saisies');
+  loadMesSaisies();
+}
+
+// ══════════════════════════════════════════
+// SAISIE
+// ══════════════════════════════════════════
+function selectPresence(mode) {
+  modePresence = mode;
+  document.getElementById('opt-seul').classList.toggle('selected', mode === 'seul');
+  document.getElementById('opt-equipe').classList.toggle('selected', mode === 'equipe');
+  document.getElementById('avec-qui-group').style.display = mode === 'equipe' ? 'block' : 'none';
+}
+
+function calcAmplitude() {
+  const dep = document.getElementById('s-depart').value;
+  const ret = document.getElementById('s-retour').value;
+  if (!dep || !ret) { document.getElementById('amplitude-preview').style.display = 'none'; return; }
+  const [dh, dm] = dep.split(':').map(Number);
+  const [rh, rm] = ret.split(':').map(Number);
+  let mins = (rh * 60 + rm) - (dh * 60 + dm);
+  if (mins < 0) mins += 24 * 60;
+  const h = Math.floor(mins / 60);
+  const m = mins % 60;
+  document.getElementById('amp-val').textContent = `${h}h${String(m).padStart(2,'0')}`;
+  document.getElementById('amplitude-preview').style.display = 'block';
+}
+
+async function saveSaisie() {
+  const date = document.getElementById('s-date').value;
+  const depart = document.getElementById('s-depart').value;
+  const retour = document.getElementById('s-retour').value;
+  const site = document.getElementById('s-site').value.trim();
+  const ville = document.getElementById('s-ville').value.trim();
+  const camion = document.getElementById('s-camion').value.trim();
+  const avecQui = document.getElementById('s-avec-qui').value.trim();
+  const commentaire = document.getElementById('s-commentaire').value.trim();
+
+  if (!date || !depart || !retour || !site) {
+    showAlert('saisie-error', 'Remplissez au minimum : date, heures et site.');
+    return;
+  }
+
+  const btn = document.getElementById('btn-save');
+  btn.disabled = true;
+  btn.textContent = '⏳ Enregistrement...';
+
+  try {
+    await api.post('saisies', {
+      employe_id: currentUser.id,
+      employe_nom: currentUser.nom,
+      date,
+      heure_depart: depart,
+      heure_retour: retour,
+      site,
+      ville: ville || null,
+      camion: camion || null,
+      avec_qui: modePresence === 'equipe' ? (avecQui || null) : null,
+      seul: modePresence === 'seul',
+      commentaire: commentaire || null
+    });
+
+    showAlert('saisie-success', '✅ Déplacement enregistré avec succès !');
+
+    // Reset form
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('s-date').value = today;
+    document.getElementById('s-depart').value = '';
+    document.getElementById('s-retour').value = '';
+    document.getElementById('s-site').value = '';
+    document.getElementById('s-ville').value = '';
+    document.getElementById('s-camion').value = '';
+    document.getElementById('s-avec-qui').value = '';
+    document.getElementById('s-commentaire').value = '';
+    document.getElementById('amplitude-preview').style.display = 'none';
+    selectPresence('seul');
+
+    setTimeout(() => {
+      document.getElementById('saisie-success').classList.remove('show');
+      backToAccueil();
+    }, 2000);
+
+  } catch(err) {
+    showAlert('saisie-error', 'Erreur lors de l\'enregistrement : ' + err.message);
+  }
+
+  btn.disabled = false;
+  btn.textContent = '💾 Enregistrer le déplacement';
+}
+
+// ══════════════════════════════════════════
+// MES SAISIES
+// ══════════════════════════════════════════
+async function loadMesSaisies() {
+  const container = document.getElementById('mes-saisies-list');
+  container.innerHTML = '<div class="loader"><div class="spinner"></div> Chargement...</div>';
+  try {
+    const data = await api.get('saisies',
+      `employe_id=eq.${currentUser.id}&order=date.desc,heure_depart.desc&select=*`
+    );
+    document.getElementById('mes-saisies-sub').textContent = `${data.length} déplacement(s) enregistré(s)`;
+    container.innerHTML = data.length === 0
+      ? '<div class="empty-state"><div class="icon">📭</div><p>Aucun déplacement enregistré.</p></div>'
+      : data.map(s => renderSaisieCard(s)).join('');
+  } catch(err) {
+    container.innerHTML = '<div class="empty-state"><p>Erreur de chargement.</p></div>';
+  }
+}
+
+// ══════════════════════════════════════════
+// ADMIN — TABLEAU
+// ══════════════════════════════════════════
+async function loadFilterEmployes() {
+  try {
+    const employes = await api.get('employes', 'actif=eq.true&order=nom.asc&select=id,nom');
+    const sel = document.getElementById('filter-employe');
+    employes.forEach(e => {
+      const opt = document.createElement('option');
+      opt.value = e.id;
+      opt.textContent = e.nom;
+      sel.appendChild(opt);
+    });
+  } catch(err) {}
+}
+
+async function loadFilterMois() {
+  const sel = document.getElementById('filter-mois');
+  const now = new Date();
+  for (let i = 0; i < 12; i++) {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    const val = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+    const opt = document.createElement('option');
+    opt.value = val;
+    opt.textContent = d.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
+    sel.appendChild(opt);
+  }
+}
+
+async function loadAdminSaisies() {
+  const container = document.getElementById('admin-saisies-list');
+  container.innerHTML = '<div class="loader"><div class="spinner"></div> Chargement...</div>';
+
+  let params = 'order=date.desc,heure_depart.desc&select=*';
+  const empFilter = document.getElementById('filter-employe').value;
+  const moisFilter = document.getElementById('filter-mois').value;
+
+  if (empFilter) params += `&employe_id=eq.${empFilter}`;
+  if (moisFilter) {
+    const [y, m] = moisFilter.split('-');
+    const debut = `${y}-${m}-01`;
+    const fin = new Date(y, m, 0).toISOString().split('T')[0];
+    params += `&date=gte.${debut}&date=lte.${fin}`;
+  }
+
+  try {
+    allSaisies = await api.get('saisies', params);
+    container.innerHTML = allSaisies.length === 0
+      ? '<div class="empty-state"><div class="icon">📭</div><p>Aucune saisie trouvée.</p></div>'
+      : allSaisies.map(s => renderSaisieCard(s, true)).join('');
+  } catch(err) {
+    container.innerHTML = '<div class="empty-state"><p>Erreur de chargement.</p></div>';
+  }
+}
+
+function renderSaisieCard(s, showNom = false) {
+  const amp = parseFloat(s.amplitude) || 0;
+  const h = Math.floor(amp);
+  const m = Math.round((amp - h) * 60);
+  const ampStr = `${h}h${String(m).padStart(2,'0')}`;
+  const dateStr = new Date(s.date).toLocaleDateString('fr-FR', { weekday:'short', day:'numeric', month:'short' });
+
+  return `<div class="saisie-item">
+    <div class="saisie-header">
+      <div>
+        ${showNom ? `<div class="saisie-nom">👤 ${s.employe_nom}</div>` : ''}
+        <div class="saisie-date">📅 ${dateStr}</div>
+      </div>
+      <span class="amplitude-badge">⏱️ ${ampStr}</span>
+    </div>
+    <div class="saisie-infos">
+      <span class="tag bleu">🕐 ${s.heure_depart?.slice(0,5)} → ${s.heure_retour?.slice(0,5)}</span>
+      <span class="tag rouge">📍 ${s.site}</span>
+      ${s.ville ? `<span class="tag">🏙️ ${s.ville}</span>` : ''}
+      ${s.camion ? `<span class="tag orange">🚛 ${s.camion}</span>` : ''}
+      ${s.seul ? '<span class="tag">👤 Seul</span>' : `<span class="tag vert">👥 ${s.avec_qui || 'Équipe'}</span>`}
+      ${s.commentaire ? `<span class="tag">💬 ${s.commentaire}</span>` : ''}
+    </div>
+  </div>`;
+}
+
+// ══════════════════════════════════════════
+// ADMIN — STATS
+// ══════════════════════════════════════════
+function adminTab(tab) {
+  document.querySelectorAll('.nav-tab').forEach((t,i) => {
+    t.classList.toggle('active', ['tableau','stats','employes'][i] === tab);
+  });
+  document.getElementById('admin-tableau').style.display = tab === 'tableau' ? 'block' : 'none';
+  document.getElementById('admin-stats').style.display = tab === 'stats' ? 'block' : 'none';
+  document.getElementById('admin-employes').style.display = tab === 'employes' ? 'block' : 'none';
+
+  if (tab === 'stats') loadStats();
+  if (tab === 'employes') loadEmployesList();
+}
+
+async function loadStats() {
+  try {
+    const data = await api.get('saisies', 'select=*&order=date.asc');
+    allSaisies = data;
+
+    // Stats globales
+    const totalDep = data.length;
+    const totalHeures = data.reduce((s, r) => s + (parseFloat(r.amplitude) || 0), 0);
+    const ampMoy = totalDep > 0 ? totalHeures / totalDep : 0;
+    const employes = [...new Set(data.map(r => r.employe_nom))];
+
+    document.getElementById('stats-global').innerHTML = `
+      <div class="stat-card"><div class="stat-value">${totalDep}</div><div class="stat-label">Déplacements</div></div>
+      <div class="stat-card"><div class="stat-value">${Math.round(totalHeures)}h</div><div class="stat-label">Heures totales</div></div>
+      <div class="stat-card"><div class="stat-value">${ampMoy.toFixed(1)}h</div><div class="stat-label">Amplitude moy.</div></div>
+      <div class="stat-card"><div class="stat-value">${employes.length}</div><div class="stat-label">Actifs</div></div>
+    `;
+
+    // Chart déplacements par employé
+    const depParEmp = {};
+    const ampParEmp = {};
+    data.forEach(r => {
+      depParEmp[r.employe_nom] = (depParEmp[r.employe_nom] || 0) + 1;
+      ampParEmp[r.employe_nom] = (ampParEmp[r.employe_nom] || 0) + (parseFloat(r.amplitude) || 0);
+    });
+
+    const maxDep = Math.max(...Object.values(depParEmp), 1);
+    document.getElementById('chart-deplacements').innerHTML = Object.entries(depParEmp)
+      .sort((a,b) => b[1]-a[1])
+      .map(([nom, val]) => barRow(nom, val, maxDep, val + ' dép.'))
+      .join('');
+
+    const maxAmp = Math.max(...Object.values(ampParEmp).map(v => v / depParEmp[Object.keys(depParEmp).find(k => k)]), 1);
+    document.getElementById('chart-amplitude').innerHTML = Object.entries(ampParEmp)
+      .sort((a,b) => (b[1]/depParEmp[b[0]]) - (a[1]/depParEmp[a[0]]))
+      .map(([nom, total]) => {
+        const moy = total / depParEmp[nom];
+        const maxVal = Math.max(...Object.entries(ampParEmp).map(([n, t]) => t / depParEmp[n]), 1);
+        return barRow(nom, moy, maxVal, moy.toFixed(1) + 'h moy');
+      })
+      .join('');
+
+    // Chart par mois
+    const parMois = {};
+    data.forEach(r => {
+      const m = r.date.slice(0, 7);
+      parMois[m] = (parMois[m] || 0) + 1;
+    });
+    const maxMois = Math.max(...Object.values(parMois), 1);
+    const moisLabels = { '01':'Jan','02':'Fév','03':'Mar','04':'Avr','05':'Mai','06':'Jun','07':'Jul','08':'Aoû','09':'Sep','10':'Oct','11':'Nov','12':'Déc' };
+    document.getElementById('chart-mois').innerHTML = Object.entries(parMois)
+      .sort((a,b) => a[0].localeCompare(b[0]))
+      .slice(-8)
+      .map(([mois, val]) => {
+        const [y, m] = mois.split('-');
+        const label = moisLabels[m] + ' ' + y.slice(2);
+        return barRow(label, val, maxMois, val + ' dép.');
+      })
+      .join('');
+
+  } catch(err) {
+    console.error(err);
+  }
+}
+
+function barRow(label, val, max, displayVal) {
+  const pct = Math.max(5, Math.round((val / max) * 100));
+  return `<div class="chart-bar-row">
+    <div class="chart-label" title="${label}">${label}</div>
+    <div class="chart-bar-bg">
+      <div class="chart-bar-fill" style="width:${pct}%">
+        <span class="chart-bar-val">${displayVal}</span>
+      </div>
+    </div>
+  </div>`;
+}
+
+// ══════════════════════════════════════════
+// ADMIN — EMPLOYÉS
+// ══════════════════════════════════════════
+async function loadEmployesList() {
+  const container = document.getElementById('employes-list');
+  container.innerHTML = '<div class="loader"><div class="spinner"></div> Chargement...</div>';
+  try {
+    allEmployes = await api.get('employes', 'order=nom.asc&select=*');
+    if (allEmployes.length === 0) {
+      container.innerHTML = '<div class="empty-state"><p>Aucun employé.</p></div>';
+      return;
+    }
+    container.innerHTML = allEmployes.map(e => `
+      <div class="employe-row">
+        <div class="employe-info">
+          <span class="employe-name">${e.nom} ${e.role === 'admin' ? '⭐' : ''}</span>
+          <span class="employe-pin">PIN : ${'•'.repeat(e.pin.length)} · ${e.actif ? '✅ Actif' : '❌ Inactif'}</span>
+        </div>
+        <div class="employe-actions">
+          ${e.role !== 'admin' ? `<button class="btn-sm btn-sm-danger" onclick="confirmDelete('${e.id}','${e.nom}')">Supprimer</button>` : ''}
+        </div>
+      </div>
+    `).join('');
+  } catch(err) {
+    container.innerHTML = '<div class="empty-state"><p>Erreur de chargement.</p></div>';
+  }
+}
+
+async function addEmploye() {
+  const nom = document.getElementById('new-nom').value.trim();
+  const pin = document.getElementById('new-pin').value.trim();
+  if (!nom || !pin || pin.length < 4) {
+    showAlert('emp-error', 'Nom et PIN (min 4 chiffres) requis.');
+    return;
+  }
+  if (!/^\d+$/.test(pin)) {
+    showAlert('emp-error', 'Le PIN doit contenir uniquement des chiffres.');
+    return;
+  }
+  try {
+    await api.post('employes', { nom, pin, role: 'employe', actif: true });
+    document.getElementById('new-nom').value = '';
+    document.getElementById('new-pin').value = '';
+    showAlert('emp-success', `✅ ${nom} ajouté avec succès !`);
+    await loadEmployesList();
+    // Refresh login select
+    const sel = document.getElementById('login-select');
+    const lastVal = sel.value;
+    while (sel.options.length > 1) sel.remove(1);
+    await loadEmployesLogin();
+    // Refresh filter
+    const filterSel = document.getElementById('filter-employe');
+    while (filterSel.options.length > 1) filterSel.remove(1);
+    await loadFilterEmployes();
+  } catch(err) {
+    showAlert('emp-error', 'Erreur : ' + err.message);
+  }
+}
+
+function confirmDelete(id, nom) {
+  document.getElementById('modal-title').textContent = `Supprimer ${nom} ?`;
+  document.getElementById('modal-body').textContent = `Cette action supprimera l'employé ${nom}. Ses saisies seront conservées.`;
+  document.getElementById('modal-confirm-btn').onclick = () => deleteEmploye(id, nom);
+  document.getElementById('modal-confirm').classList.add('show');
+}
+
+async function deleteEmploye(id, nom) {
+  closeModal();
+  try {
+    await api.patch('employes', id, { actif: false });
+    showAlert('emp-success', `${nom} désactivé.`);
+    await loadEmployesList();
+  } catch(err) {
+    showAlert('emp-error', 'Erreur : ' + err.message);
+  }
+}
+
+function closeModal() {
+  document.getElementById('modal-confirm').classList.remove('show');
+}
+
+// ══════════════════════════════════════════
+// EXPORT CSV
+// ══════════════════════════════════════════
+function exportCSV() {
+  if (allSaisies.length === 0) { alert('Aucune donnée à exporter.'); return; }
+  const headers = ['Employé','Date','Départ','Retour','Amplitude (h)','Site','Ville','Camion','Seul','Avec qui','Commentaire'];
+  const rows = allSaisies.map(s => [
+    s.employe_nom,
+    s.date,
+    s.heure_depart?.slice(0,5) || '',
+    s.heure_retour?.slice(0,5) || '',
+    parseFloat(s.amplitude || 0).toFixed(2),
+    s.site,
+    s.ville || '',
+    s.camion || '',
+    s.seul ? 'Oui' : 'Non',
+    s.avec_qui || '',
+    s.commentaire || ''
+  ]);
+
+  const csv = [headers, ...rows].map(r => r.map(c => `"${String(c).replace(/"/g,'""')}"`).join(';')).join('\n');
+  const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `extinctium_deplacements_${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+// ══════════════════════════════════════════
+// UTILS
+// ══════════════════════════════════════════
+function showAlert(id, msg) {
+  const el = document.getElementById(id);
+  el.textContent = msg;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 4000);
+}
+</script>
+</body>
+</html>
