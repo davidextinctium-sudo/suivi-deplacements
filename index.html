@@ -648,6 +648,7 @@
       </div>
     </div>
 
+    <button class="btn btn-primary" onclick="tryLogin()" style="margin-top:16px">🔓 Se connecter</button>
     <div class="alert alert-error" id="login-error">PIN incorrect ou employé non sélectionné.</div>
     <div class="loader" id="login-loader" style="display:none"><div class="spinner"></div> Connexion...</div>
   </div>
@@ -929,12 +930,6 @@ function pinKey(k) {
   if (pinBuffer.length >= 6) return;
   pinBuffer += k;
   updatePinDisplay();
-  if (pinBuffer.length >= 4) {
-    // Auto-tentative si PIN complet selon longueur attendue
-    setTimeout(() => {
-      if (pinBuffer.length === 6) tryLogin();
-    }, 100);
-  }
 }
 
 function pinDel() {
