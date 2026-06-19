@@ -684,7 +684,6 @@ async function saveSaisie() {
       matin_fin: mf || null,
       apmidi_depart: ad || null,
       apmidi_fin: af || null,
-      amplitude,
       site,
       ville: document.getElementById('s-ville').value.trim() || null,
       camion: document.getElementById('s-camion').value.trim() || null,
@@ -916,7 +915,6 @@ async function saveEditSaisie() {
       matin_depart: md||null, matin_fin: mf||null,
       apmidi_depart: ad||null, apmidi_fin: af||null,
       heure_depart: md||null, heure_retour: af||ad||null,
-      amplitude,
       commentaire: document.getElementById('edit-commentaire').value||null
     });
     closeModal('modal-edit-saisie');
