@@ -5,596 +5,194 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>EXTINCTIUM — Suivi Déplacements</title>
 <style>
-  :root {
-    --rouge: #C0392B;
-    --rouge-dark: #922B21;
-    --rouge-light: #E74C3C;
-    --orange: #E67E22;
-    --gris-fonce: #1a1a1a;
-    --gris-moyen: #2d2d2d;
-    --gris-clair: #3d3d3d;
-    --gris-texte: #aaaaaa;
-    --blanc: #f5f5f5;
-    --blanc-pur: #ffffff;
-    --vert: #27AE60;
-    --bleu: #2980B9;
-    --fond: #111111;
-  }
+:root {
+  --rouge: #C0392B; --rouge-dark: #922B21; --rouge-light: #E74C3C;
+  --orange: #E67E22; --gris-fonce: #1a1a1a; --gris-moyen: #2d2d2d;
+  --gris-clair: #3d3d3d; --gris-texte: #aaaaaa; --blanc: #f5f5f5;
+  --blanc-pur: #ffffff; --vert: #27AE60; --bleu: #2980B9; --fond: #111111;
+  --jaune: #F39C12;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--fond); color: var(--blanc); min-height: 100vh; font-size: 15px; }
 
-  * { box-sizing: border-box; margin: 0; padding: 0; }
+/* HEADER */
+.header { background: linear-gradient(135deg, var(--gris-fonce) 0%, #1f1f1f 100%); border-bottom: 3px solid var(--rouge); padding: 14px 20px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
+.header-logo { display: flex; align-items: center; gap: 10px; }
+.header-title { font-size: 16px; font-weight: 700; letter-spacing: 2px; color: var(--blanc-pur); text-transform: uppercase; }
+.header-subtitle { font-size: 10px; color: var(--rouge-light); letter-spacing: 1px; text-transform: uppercase; }
+.header-user { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--gris-texte); }
+.user-badge { background: var(--rouge); color: white; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+.btn-logout { background: transparent; border: 1px solid var(--gris-clair); color: var(--gris-texte); padding: 4px 10px; border-radius: 6px; cursor: pointer; font-size: 11px; transition: all .2s; }
+.btn-logout:hover { border-color: var(--rouge); color: var(--rouge); }
+.alert-badge { background: var(--rouge); color: white; border-radius: 50%; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; animation: pulse 2s infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.6} }
 
-  body {
-    font-family: 'Segoe UI', system-ui, sans-serif;
-    background: var(--fond);
-    color: var(--blanc);
-    min-height: 100vh;
-    font-size: 15px;
-  }
+/* PAGES */
+.page { display: none; padding: 20px; max-width: 750px; margin: 0 auto; }
+.page.active { display: block; }
 
-  /* ── HEADER ── */
-  .header {
-    background: linear-gradient(135deg, var(--gris-fonce) 0%, #1f1f1f 100%);
-    border-bottom: 3px solid var(--rouge);
-    padding: 14px 20px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    position: sticky;
-    top: 0;
-    z-index: 100;
-  }
-  .header-logo {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-  .header-logo .flame {
-    font-size: 24px;
-  }
-  .header-title {
-    font-size: 16px;
-    font-weight: 700;
-    letter-spacing: 2px;
-    color: var(--blanc-pur);
-    text-transform: uppercase;
-  }
-  .header-subtitle {
-    font-size: 10px;
-    color: var(--rouge-light);
-    letter-spacing: 1px;
-    text-transform: uppercase;
-  }
-  .header-user {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 12px;
-    color: var(--gris-texte);
-  }
-  .user-badge {
-    background: var(--rouge);
-    color: white;
-    padding: 3px 10px;
-    border-radius: 20px;
-    font-size: 11px;
-    font-weight: 600;
-    letter-spacing: 1px;
-  }
-  .btn-logout {
-    background: transparent;
-    border: 1px solid var(--gris-clair);
-    color: var(--gris-texte);
-    padding: 4px 10px;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 11px;
-    transition: all .2s;
-  }
-  .btn-logout:hover { border-color: var(--rouge); color: var(--rouge); }
+/* LOGIN */
+#page-login { max-width: 420px; margin: 0 auto; padding-top: 60px; }
+.login-card { background: var(--gris-moyen); border-radius: 16px; padding: 40px 30px; border: 1px solid var(--gris-clair); }
+.login-logo { text-align: center; margin-bottom: 30px; }
+.login-logo .big-flame { font-size: 48px; }
+.login-logo h1 { font-size: 22px; font-weight: 800; letter-spacing: 3px; color: var(--blanc-pur); margin-top: 8px; }
+.login-logo p { font-size: 12px; color: var(--rouge-light); letter-spacing: 2px; margin-top: 4px; }
 
-  /* ── PAGES ── */
-  .page { display: none; padding: 20px; max-width: 700px; margin: 0 auto; }
-  .page.active { display: block; }
+/* FORM */
+.form-group { margin-bottom: 16px; }
+.form-group label { display: block; font-size: 11px; letter-spacing: 1px; text-transform: uppercase; color: var(--gris-texte); margin-bottom: 6px; font-weight: 600; }
+select, input[type="text"], input[type="date"], input[type="time"], textarea {
+  width: 100%; background: var(--gris-clair); border: 1px solid #444; color: var(--blanc-pur);
+  padding: 11px 14px; border-radius: 8px; font-size: 14px; outline: none; transition: border-color .2s; font-family: inherit;
+}
+select:focus, input:focus, textarea:focus { border-color: var(--rouge); }
+textarea { resize: vertical; min-height: 70px; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.form-row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+.form-row-4 { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 10px; }
+@media(max-width:500px){ .form-row,.form-row-3,.form-row-4{grid-template-columns:1fr 1fr;} }
 
-  /* ── LOGIN ── */
-  #page-login {
-    max-width: 420px;
-    margin: 0 auto;
-    padding-top: 60px;
-  }
-  .login-card {
-    background: var(--gris-moyen);
-    border-radius: 16px;
-    padding: 40px 30px;
-    border: 1px solid var(--gris-clair);
-  }
-  .login-logo {
-    text-align: center;
-    margin-bottom: 30px;
-  }
-  .login-logo .big-flame { font-size: 48px; }
-  .login-logo h1 {
-    font-size: 22px;
-    font-weight: 800;
-    letter-spacing: 3px;
-    color: var(--blanc-pur);
-    margin-top: 8px;
-  }
-  .login-logo p { font-size: 12px; color: var(--rouge-light); letter-spacing: 2px; margin-top: 4px; }
-  .form-group { margin-bottom: 18px; }
-  .form-group label {
-    display: block;
-    font-size: 11px;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    color: var(--gris-texte);
-    margin-bottom: 6px;
-    font-weight: 600;
-  }
-  select, input[type="text"], input[type="date"], input[type="time"], input[type="password"], textarea {
-    width: 100%;
-    background: var(--gris-clair);
-    border: 1px solid #444;
-    color: var(--blanc-pur);
-    padding: 12px 14px;
-    border-radius: 8px;
-    font-size: 15px;
-    outline: none;
-    transition: border-color .2s;
-    font-family: inherit;
-  }
-  select:focus, input:focus, textarea:focus { border-color: var(--rouge); }
-  textarea { resize: vertical; min-height: 70px; }
+/* PIN */
+.pin-container { display: flex; justify-content: center; gap: 12px; margin: 20px 0; }
+.pin-dot { width: 18px; height: 18px; border-radius: 50%; background: var(--gris-clair); border: 2px solid #555; transition: all .2s; }
+.pin-dot.filled { background: var(--rouge); border-color: var(--rouge); }
+.pin-keypad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; max-width: 240px; margin: 0 auto; }
+.pin-key { background: var(--gris-clair); border: 1px solid #444; color: var(--blanc-pur); padding: 16px; border-radius: 10px; font-size: 20px; font-weight: 600; cursor: pointer; text-align: center; transition: all .15s; user-select: none; }
+.pin-key:active { transform: scale(0.94); background: var(--rouge); }
+.pin-key.del { font-size: 16px; color: var(--gris-texte); }
+.pin-key.zero { grid-column: 2; }
 
-  /* PIN */
-  .pin-container {
-    display: flex;
-    justify-content: center;
-    gap: 12px;
-    margin: 20px 0;
-  }
-  .pin-dot {
-    width: 18px; height: 18px;
-    border-radius: 50%;
-    background: var(--gris-clair);
-    border: 2px solid #555;
-    transition: all .2s;
-  }
-  .pin-dot.filled { background: var(--rouge); border-color: var(--rouge); }
-  .pin-keypad {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 10px;
-    max-width: 240px;
-    margin: 0 auto;
-  }
-  .pin-key {
-    background: var(--gris-clair);
-    border: 1px solid #444;
-    color: var(--blanc-pur);
-    padding: 16px;
-    border-radius: 10px;
-    font-size: 20px;
-    font-weight: 600;
-    cursor: pointer;
-    text-align: center;
-    transition: all .15s;
-    user-select: none;
-  }
-  .pin-key:active { transform: scale(0.94); background: var(--rouge); }
-  .pin-key.del { font-size: 16px; color: var(--gris-texte); }
-  .pin-key.zero { grid-column: 2; }
+/* BUTTONS */
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 12px 20px; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; border: none; transition: all .2s; width: 100%; }
+.btn-primary { background: var(--rouge); color: white; }
+.btn-primary:hover { background: var(--rouge-dark); }
+.btn-primary:disabled { background: #555; cursor: not-allowed; }
+.btn-secondary { background: var(--gris-clair); color: var(--blanc); border: 1px solid #555; }
+.btn-secondary:hover { background: #4a4a4a; }
+.btn-success { background: var(--vert); color: white; }
+.btn-warning { background: var(--jaune); color: white; }
+.btn-danger { background: var(--rouge-dark); color: white; }
+.btn-sm { padding: 5px 12px; border-radius: 6px; font-size: 11px; font-weight: 600; cursor: pointer; border: none; transition: all .2s; width: auto; display: inline-flex; align-items: center; gap: 4px; }
+.btn-sm-danger { background: rgba(192,57,43,0.2); color: var(--rouge-light); border: 1px solid rgba(192,57,43,0.3); }
+.btn-sm-danger:hover { background: var(--rouge); color: white; }
+.btn-sm-success { background: rgba(39,174,96,0.2); color: #2ecc71; border: 1px solid rgba(39,174,96,0.3); }
+.btn-sm-success:hover { background: var(--vert); color: white; }
+.btn-sm-warning { background: rgba(243,156,18,0.2); color: var(--jaune); border: 1px solid rgba(243,156,18,0.3); }
+.btn-sm-warning:hover { background: var(--jaune); color: white; }
 
-  /* ── BUTTONS ── */
-  .btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    padding: 13px 22px;
-    border-radius: 10px;
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
-    border: none;
-    transition: all .2s;
-    letter-spacing: .5px;
-    width: 100%;
-  }
-  .btn-primary { background: var(--rouge); color: white; }
-  .btn-primary:hover { background: var(--rouge-dark); }
-  .btn-primary:disabled { background: #555; cursor: not-allowed; }
-  .btn-secondary { background: var(--gris-clair); color: var(--blanc); border: 1px solid #555; }
-  .btn-secondary:hover { background: #4a4a4a; }
-  .btn-success { background: var(--vert); color: white; }
-  .btn-success:hover { background: #219a52; }
-  .btn-warning { background: var(--orange); color: white; }
+/* NAV TABS */
+.nav-tabs { display: flex; background: var(--gris-moyen); border-radius: 12px; padding: 4px; margin-bottom: 24px; border: 1px solid var(--gris-clair); flex-wrap: wrap; gap: 2px; }
+.nav-tab { flex: 1; min-width: 80px; padding: 9px 6px; text-align: center; border-radius: 9px; cursor: pointer; font-size: 11px; font-weight: 600; color: var(--gris-texte); transition: all .2s; position: relative; }
+.nav-tab.active { background: var(--rouge); color: white; }
+.nav-tab .badge { position: absolute; top: 2px; right: 2px; background: var(--jaune); color: #000; border-radius: 50%; width: 16px; height: 16px; font-size: 10px; display: flex; align-items: center; justify-content: center; font-weight: 700; }
 
-  /* ── NAV TABS ── */
-  .nav-tabs {
-    display: flex;
-    background: var(--gris-moyen);
-    border-radius: 12px;
-    padding: 4px;
-    margin-bottom: 24px;
-    border: 1px solid var(--gris-clair);
-  }
-  .nav-tab {
-    flex: 1;
-    padding: 10px 6px;
-    text-align: center;
-    border-radius: 9px;
-    cursor: pointer;
-    font-size: 12px;
-    font-weight: 600;
-    color: var(--gris-texte);
-    transition: all .2s;
-    letter-spacing: .5px;
-  }
-  .nav-tab.active {
-    background: var(--rouge);
-    color: white;
-  }
+/* CARDS */
+.card { background: var(--gris-moyen); border-radius: 12px; padding: 20px; margin-bottom: 16px; border: 1px solid var(--gris-clair); }
+.card-title { font-size: 13px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--rouge-light); margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+.section-title { font-size: 18px; font-weight: 700; color: var(--blanc-pur); margin-bottom: 4px; }
+.section-sub { font-size: 12px; color: var(--gris-texte); margin-bottom: 20px; }
 
-  /* ── CARDS ── */
-  .card {
-    background: var(--gris-moyen);
-    border-radius: 12px;
-    padding: 20px;
-    margin-bottom: 16px;
-    border: 1px solid var(--gris-clair);
-  }
-  .card-title {
-    font-size: 13px;
-    font-weight: 700;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    color: var(--rouge-light);
-    margin-bottom: 16px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
+/* SAISIE ITEM */
+.saisie-item { background: var(--gris-moyen); border-radius: 10px; padding: 14px 16px; margin-bottom: 10px; border: 1px solid var(--gris-clair); border-left: 4px solid var(--rouge); }
+.saisie-item.alerte-10h { border-left-color: var(--jaune); }
+.saisie-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; gap: 8px; }
+.saisie-nom { font-weight: 700; color: var(--blanc-pur); font-size: 15px; }
+.saisie-date { font-size: 12px; color: var(--gris-texte); }
+.saisie-infos { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+.saisie-actions { display: flex; gap: 6px; margin-top: 10px; flex-wrap: wrap; }
+.tag { background: var(--gris-clair); padding: 3px 10px; border-radius: 20px; font-size: 11px; color: var(--gris-texte); }
+.tag.rouge { background: rgba(192,57,43,0.2); color: var(--rouge-light); }
+.tag.vert { background: rgba(39,174,96,0.2); color: #2ecc71; }
+.tag.bleu { background: rgba(41,128,185,0.2); color: #5dade2; }
+.tag.orange { background: rgba(230,126,34,0.2); color: #f39c12; }
+.tag.jaune { background: rgba(243,156,18,0.2); color: var(--jaune); }
+.amplitude-badge { background: var(--rouge); color: white; font-weight: 700; padding: 4px 12px; border-radius: 20px; font-size: 13px; white-space: nowrap; }
+.amplitude-badge.alerte { background: var(--jaune); color: #000; }
 
-  /* ── SAISIE FORM ── */
-  .form-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
-  }
-  .form-row-3 {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    gap: 12px;
-  }
-  @media (max-width: 480px) {
-    .form-row, .form-row-3 { grid-template-columns: 1fr; }
-  }
+/* RADIO */
+.radio-group { display: flex; gap: 10px; }
+.radio-option { flex: 1; background: var(--gris-clair); border: 2px solid #444; border-radius: 8px; padding: 10px; text-align: center; cursor: pointer; font-size: 13px; font-weight: 600; transition: all .2s; color: var(--gris-texte); }
+.radio-option.selected { border-color: var(--rouge); color: var(--blanc-pur); background: rgba(192,57,43,0.15); }
 
-  .radio-group {
-    display: flex;
-    gap: 10px;
-  }
-  .radio-option {
-    flex: 1;
-    background: var(--gris-clair);
-    border: 2px solid #444;
-    border-radius: 8px;
-    padding: 10px;
-    text-align: center;
-    cursor: pointer;
-    font-size: 13px;
-    font-weight: 600;
-    transition: all .2s;
-    color: var(--gris-texte);
-  }
-  .radio-option.selected {
-    border-color: var(--rouge);
-    color: var(--blanc-pur);
-    background: rgba(192,57,43,0.15);
-  }
+/* STATS */
+.stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 20px; }
+.stat-card { background: var(--gris-moyen); border-radius: 10px; padding: 16px; border: 1px solid var(--gris-clair); text-align: center; }
+.stat-value { font-size: 28px; font-weight: 800; color: var(--rouge-light); line-height: 1; }
+.stat-label { font-size: 11px; color: var(--gris-texte); margin-top: 4px; text-transform: uppercase; }
 
-  /* ── TABLEAU SAISIES ── */
-  .saisie-item {
-    background: var(--gris-moyen);
-    border-radius: 10px;
-    padding: 14px 16px;
-    margin-bottom: 10px;
-    border: 1px solid var(--gris-clair);
-    border-left: 4px solid var(--rouge);
-  }
-  .saisie-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 8px;
-  }
-  .saisie-nom {
-    font-weight: 700;
-    color: var(--blanc-pur);
-    font-size: 15px;
-  }
-  .saisie-date {
-    font-size: 12px;
-    color: var(--gris-texte);
-  }
-  .saisie-infos {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin-top: 6px;
-  }
-  .tag {
-    background: var(--gris-clair);
-    padding: 3px 10px;
-    border-radius: 20px;
-    font-size: 11px;
-    color: var(--gris-texte);
-    display: flex;
-    align-items: center;
-    gap: 4px;
-  }
-  .tag.rouge { background: rgba(192,57,43,0.2); color: var(--rouge-light); }
-  .tag.vert { background: rgba(39,174,96,0.2); color: #2ecc71; }
-  .tag.bleu { background: rgba(41,128,185,0.2); color: #5dade2; }
-  .tag.orange { background: rgba(230,126,34,0.2); color: #f39c12; }
-  .amplitude-badge {
-    background: var(--rouge);
-    color: white;
-    font-weight: 700;
-    padding: 4px 12px;
-    border-radius: 20px;
-    font-size: 13px;
-  }
+/* CHART */
+.chart-container { margin-top: 10px; }
+.chart-bar-row { display: flex; align-items: center; margin-bottom: 8px; gap: 8px; }
+.chart-label { width: 110px; font-size: 11px; color: var(--blanc); font-weight: 600; text-align: right; flex-shrink: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.chart-bar-bg { flex: 1; height: 22px; background: var(--gris-clair); border-radius: 4px; overflow: hidden; }
+.chart-bar-fill { height: 100%; background: linear-gradient(90deg, var(--rouge-dark), var(--rouge-light)); border-radius: 4px; transition: width .5s; display: flex; align-items: center; justify-content: flex-end; padding-right: 6px; min-width: 30px; }
+.chart-bar-val { font-size: 11px; font-weight: 700; color: white; white-space: nowrap; }
 
-  /* ── STATS ── */
-  .stats-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 12px;
-    margin-bottom: 20px;
-  }
-  .stat-card {
-    background: var(--gris-moyen);
-    border-radius: 10px;
-    padding: 16px;
-    border: 1px solid var(--gris-clair);
-    text-align: center;
-  }
-  .stat-value {
-    font-size: 28px;
-    font-weight: 800;
-    color: var(--rouge-light);
-    line-height: 1;
-  }
-  .stat-label {
-    font-size: 11px;
-    color: var(--gris-texte);
-    margin-top: 4px;
-    text-transform: uppercase;
-    letter-spacing: .5px;
-  }
+/* FILTER BAR */
+.filter-bar { display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; }
+.filter-bar select { flex: 1; min-width: 120px; padding: 9px 12px; font-size: 13px; }
 
-  /* ── BAR CHART ── */
-  .chart-container { margin-top: 10px; }
-  .chart-bar-row {
-    display: flex;
-    align-items: center;
-    margin-bottom: 8px;
-    gap: 8px;
-  }
-  .chart-label {
-    width: 90px;
-    font-size: 12px;
-    color: var(--blanc);
-    font-weight: 600;
-    text-align: right;
-    flex-shrink: 0;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-  .chart-bar-bg {
-    flex: 1;
-    height: 22px;
-    background: var(--gris-clair);
-    border-radius: 4px;
-    overflow: hidden;
-  }
-  .chart-bar-fill {
-    height: 100%;
-    background: linear-gradient(90deg, var(--rouge-dark), var(--rouge-light));
-    border-radius: 4px;
-    transition: width .5s ease;
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    padding-right: 6px;
-  }
-  .chart-bar-val {
-    font-size: 11px;
-    font-weight: 700;
-    color: white;
-    white-space: nowrap;
-  }
+/* ALERTS */
+.alert { padding: 12px 16px; border-radius: 8px; margin-bottom: 16px; font-size: 13px; font-weight: 500; display: none; }
+.alert.show { display: block; }
+.alert-error { background: rgba(192,57,43,0.2); border: 1px solid var(--rouge); color: #ff6b6b; }
+.alert-success { background: rgba(39,174,96,0.2); border: 1px solid var(--vert); color: #2ecc71; }
+.alert-warning { background: rgba(243,156,18,0.2); border: 1px solid var(--jaune); color: var(--jaune); }
 
-  /* ── ADMIN EMPLOYES ── */
-  .employe-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 12px 14px;
-    background: var(--gris-moyen);
-    border-radius: 8px;
-    margin-bottom: 8px;
-    border: 1px solid var(--gris-clair);
-  }
-  .employe-info { display: flex; flex-direction: column; gap: 2px; }
-  .employe-name { font-weight: 700; font-size: 15px; }
-  .employe-pin { font-size: 11px; color: var(--gris-texte); }
-  .employe-actions { display: flex; gap: 6px; }
-  .btn-sm {
-    padding: 5px 12px;
-    border-radius: 6px;
-    font-size: 11px;
-    font-weight: 600;
-    cursor: pointer;
-    border: none;
-    transition: all .2s;
-  }
-  .btn-sm-danger { background: rgba(192,57,43,0.2); color: var(--rouge-light); border: 1px solid rgba(192,57,43,0.3); }
-  .btn-sm-danger:hover { background: var(--rouge); color: white; }
+/* LOADER */
+.loader { display: flex; justify-content: center; align-items: center; padding: 40px; color: var(--gris-texte); font-size: 13px; gap: 10px; }
+.spinner { width: 20px; height: 20px; border: 2px solid var(--gris-clair); border-top-color: var(--rouge); border-radius: 50%; animation: spin .8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.empty-state { text-align: center; padding: 40px 20px; color: var(--gris-texte); }
+.empty-state .icon { font-size: 36px; margin-bottom: 10px; }
 
-  /* ── ALERTS ── */
-  .alert {
-    padding: 12px 16px;
-    border-radius: 8px;
-    margin-bottom: 16px;
-    font-size: 13px;
-    font-weight: 500;
-    display: none;
-  }
-  .alert.show { display: block; }
-  .alert-error { background: rgba(192,57,43,0.2); border: 1px solid var(--rouge); color: #ff6b6b; }
-  .alert-success { background: rgba(39,174,96,0.2); border: 1px solid var(--vert); color: #2ecc71; }
-  .alert-info { background: rgba(41,128,185,0.2); border: 1px solid var(--bleu); color: #5dade2; }
+/* MODAL */
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 200; display: none; align-items: center; justify-content: center; padding: 20px; }
+.modal-overlay.show { display: flex; }
+.modal { background: var(--gris-moyen); border-radius: 16px; padding: 28px; width: 100%; max-width: 500px; border: 1px solid var(--gris-clair); max-height: 90vh; overflow-y: auto; }
+.modal-title { font-size: 16px; font-weight: 700; margin-bottom: 20px; color: var(--blanc-pur); }
+.modal-actions { display: flex; gap: 10px; margin-top: 20px; }
 
-  /* ── LOADER ── */
-  .loader {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 40px;
-    color: var(--gris-texte);
-    font-size: 13px;
-    gap: 10px;
-  }
-  .spinner {
-    width: 20px; height: 20px;
-    border: 2px solid var(--gris-clair);
-    border-top-color: var(--rouge);
-    border-radius: 50%;
-    animation: spin .8s linear infinite;
-  }
-  @keyframes spin { to { transform: rotate(360deg); } }
+/* EMPLOYE ROW */
+.employe-row { display: flex; align-items: center; justify-content: space-between; padding: 12px 14px; background: var(--gris-moyen); border-radius: 8px; margin-bottom: 8px; border: 1px solid var(--gris-clair); }
+.employe-info { display: flex; flex-direction: column; gap: 2px; }
+.employe-name { font-weight: 700; font-size: 15px; }
+.employe-pin { font-size: 11px; color: var(--gris-texte); }
+.employe-actions { display: flex; gap: 6px; flex-wrap: wrap; }
 
-  /* ── EMPTY STATE ── */
-  .empty-state {
-    text-align: center;
-    padding: 40px 20px;
-    color: var(--gris-texte);
-  }
-  .empty-state .icon { font-size: 36px; margin-bottom: 10px; }
-  .empty-state p { font-size: 13px; }
+/* WELCOME */
+.welcome-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 20px; }
+.welcome-action { background: var(--gris-moyen); border: 1px solid var(--gris-clair); border-radius: 12px; padding: 20px 16px; text-align: center; cursor: pointer; transition: all .2s; }
+.welcome-action:hover { border-color: var(--rouge); background: rgba(192,57,43,0.1); }
+.welcome-action .wa-icon { font-size: 28px; margin-bottom: 8px; }
+.welcome-action .wa-label { font-size: 12px; font-weight: 600; color: var(--blanc); }
+.welcome-action .wa-sub { font-size: 11px; color: var(--gris-texte); margin-top: 3px; }
 
-  /* ── MODAL ── */
-  .modal-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.7);
-    z-index: 200;
-    display: none;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
-  }
-  .modal-overlay.show { display: flex; }
-  .modal {
-    background: var(--gris-moyen);
-    border-radius: 16px;
-    padding: 28px;
-    width: 100%;
-    max-width: 400px;
-    border: 1px solid var(--gris-clair);
-  }
-  .modal-title {
-    font-size: 16px;
-    font-weight: 700;
-    margin-bottom: 20px;
-    color: var(--blanc-pur);
-  }
-  .modal-actions {
-    display: flex;
-    gap: 10px;
-    margin-top: 20px;
-  }
+.info-banner { background: rgba(192,57,43,0.1); border: 1px solid rgba(192,57,43,0.3); border-radius: 10px; padding: 14px 16px; margin-bottom: 20px; display: flex; align-items: center; gap: 12px; }
+.info-banner .ib-icon { font-size: 22px; }
+.info-banner .ib-text { font-size: 13px; color: var(--blanc); }
+.info-banner .ib-text strong { color: var(--rouge-light); }
 
-  /* ── FILTER BAR ── */
-  .filter-bar {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 16px;
-    flex-wrap: wrap;
-  }
-  .filter-bar select {
-    flex: 1;
-    min-width: 120px;
-    padding: 9px 12px;
-    font-size: 13px;
-  }
+/* ALERTE ITEM */
+.alerte-item { background: rgba(243,156,18,0.1); border: 1px solid rgba(243,156,18,0.3); border-radius: 10px; padding: 14px 16px; margin-bottom: 10px; border-left: 4px solid var(--jaune); }
+.demande-item { background: rgba(41,128,185,0.1); border: 1px solid rgba(41,128,185,0.3); border-radius: 10px; padding: 14px 16px; margin-bottom: 10px; border-left: 4px solid var(--bleu); }
 
-  /* ── EXPORT BTN ── */
-  .export-row {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 16px;
-  }
-  .export-row .btn { width: auto; flex: 1; font-size: 12px; padding: 10px; }
+/* HORAIRES GRID */
+.horaires-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
+.horaire-bloc { background: rgba(255,255,255,0.05); border-radius: 8px; padding: 10px; border: 1px solid #444; }
+.horaire-bloc-title { font-size: 10px; color: var(--gris-texte); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; font-weight: 600; }
 
-  .section-title {
-    font-size: 18px;
-    font-weight: 700;
-    color: var(--blanc-pur);
-    margin-bottom: 4px;
-  }
-  .section-sub {
-    font-size: 12px;
-    color: var(--gris-texte);
-    margin-bottom: 20px;
-  }
-
-  /* WELCOME SCREEN pour user */
-  .welcome-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
-    margin-top: 20px;
-  }
-  .welcome-action {
-    background: var(--gris-moyen);
-    border: 1px solid var(--gris-clair);
-    border-radius: 12px;
-    padding: 20px 16px;
-    text-align: center;
-    cursor: pointer;
-    transition: all .2s;
-  }
-  .welcome-action:hover { border-color: var(--rouge); background: rgba(192,57,43,0.1); }
-  .welcome-action .wa-icon { font-size: 28px; margin-bottom: 8px; }
-  .welcome-action .wa-label { font-size: 12px; font-weight: 600; color: var(--blanc); }
-  .welcome-action .wa-sub { font-size: 11px; color: var(--gris-texte); margin-top: 3px; }
-
-  .info-banner {
-    background: rgba(192,57,43,0.1);
-    border: 1px solid rgba(192,57,43,0.3);
-    border-radius: 10px;
-    padding: 14px 16px;
-    margin-bottom: 20px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-  }
-  .info-banner .ib-icon { font-size: 22px; }
-  .info-banner .ib-text { font-size: 13px; color: var(--blanc); }
-  .info-banner .ib-text strong { color: var(--rouge-light); }
+.export-row { display: flex; gap: 10px; margin-bottom: 16px; }
+.export-row .btn { width: auto; flex: 1; font-size: 12px; padding: 10px; }
 </style>
 </head>
 <body>
 
-<!-- ══ HEADER ══ -->
+<!-- HEADER -->
 <div class="header" id="app-header" style="display:none">
   <div class="header-logo">
-    <span class="flame">🔥</span>
+    <span style="font-size:24px">🔥</span>
     <div>
       <div class="header-title">EXTINCTIUM</div>
       <div class="header-subtitle">Suivi Déplacements</div>
@@ -603,11 +201,12 @@
   <div class="header-user">
     <span id="header-nom"></span>
     <span class="user-badge" id="header-role"></span>
+    <span class="alert-badge" id="header-alert-badge" style="display:none">!</span>
     <button class="btn-logout" onclick="logout()">Déco</button>
   </div>
 </div>
 
-<!-- ══ PAGE LOGIN ══ -->
+<!-- LOGIN -->
 <div class="page active" id="page-login">
   <div class="login-card">
     <div class="login-logo">
@@ -615,50 +214,35 @@
       <h1>EXTINCTIUM</h1>
       <p>SUIVI DÉPLACEMENTS</p>
     </div>
-
     <div class="form-group">
       <label>Votre nom</label>
-      <select id="login-select">
-        <option value="">-- Sélectionnez --</option>
-      </select>
+      <select id="login-select"><option value="">-- Sélectionnez --</option></select>
     </div>
-
     <div class="form-group">
       <label>Code PIN</label>
       <div class="pin-container" id="pin-display">
-        <div class="pin-dot" id="d0"></div>
-        <div class="pin-dot" id="d1"></div>
-        <div class="pin-dot" id="d2"></div>
-        <div class="pin-dot" id="d3"></div>
-        <div class="pin-dot" id="d4"></div>
-        <div class="pin-dot" id="d5"></div>
+        <div class="pin-dot" id="d0"></div><div class="pin-dot" id="d1"></div>
+        <div class="pin-dot" id="d2"></div><div class="pin-dot" id="d3"></div>
+        <div class="pin-dot" id="d4"></div><div class="pin-dot" id="d5"></div>
       </div>
       <div class="pin-keypad">
-        <div class="pin-key" onclick="pinKey('1')">1</div>
-        <div class="pin-key" onclick="pinKey('2')">2</div>
-        <div class="pin-key" onclick="pinKey('3')">3</div>
-        <div class="pin-key" onclick="pinKey('4')">4</div>
-        <div class="pin-key" onclick="pinKey('5')">5</div>
-        <div class="pin-key" onclick="pinKey('6')">6</div>
-        <div class="pin-key" onclick="pinKey('7')">7</div>
-        <div class="pin-key" onclick="pinKey('8')">8</div>
-        <div class="pin-key" onclick="pinKey('9')">9</div>
-        <div class="pin-key del" onclick="pinDel()">⌫</div>
-        <div class="pin-key zero" onclick="pinKey('0')">0</div>
+        <div class="pin-key" onclick="pinKey('1')">1</div><div class="pin-key" onclick="pinKey('2')">2</div><div class="pin-key" onclick="pinKey('3')">3</div>
+        <div class="pin-key" onclick="pinKey('4')">4</div><div class="pin-key" onclick="pinKey('5')">5</div><div class="pin-key" onclick="pinKey('6')">6</div>
+        <div class="pin-key" onclick="pinKey('7')">7</div><div class="pin-key" onclick="pinKey('8')">8</div><div class="pin-key" onclick="pinKey('9')">9</div>
+        <div class="pin-key del" onclick="pinDel()">⌫</div><div class="pin-key zero" onclick="pinKey('0')">0</div>
       </div>
     </div>
-
     <button class="btn btn-primary" onclick="tryLogin()" style="margin-top:16px">🔓 Se connecter</button>
-    <div class="alert alert-error" id="login-error">PIN incorrect ou employé non sélectionné.</div>
+    <div class="alert alert-error" id="login-error">PIN incorrect.</div>
     <div class="loader" id="login-loader" style="display:none"><div class="spinner"></div> Connexion...</div>
   </div>
 </div>
 
-<!-- ══ PAGE ACCUEIL EMPLOYÉ ══ -->
+<!-- ACCUEIL EMPLOYÉ -->
 <div class="page" id="page-accueil">
   <div class="info-banner">
     <span class="ib-icon">👋</span>
-    <div class="ib-text">Bonjour <strong id="accueil-nom"></strong> ! Que souhaitez-vous faire ?</div>
+    <div class="ib-text">Bonjour <strong id="accueil-nom"></strong> !</div>
   </div>
   <div class="welcome-grid">
     <div class="welcome-action" onclick="showPage('page-saisie')">
@@ -669,16 +253,15 @@
     <div class="welcome-action" onclick="showMesSaisies()">
       <div class="wa-icon">📋</div>
       <div class="wa-label">Mes saisies</div>
-      <div class="wa-sub">Voir mon historique</div>
+      <div class="wa-sub">Historique & modifications</div>
     </div>
   </div>
 </div>
 
-<!-- ══ PAGE SAISIE ══ -->
+<!-- SAISIE -->
 <div class="page" id="page-saisie">
   <div class="section-title">⏱️ Nouvelle saisie</div>
   <div class="section-sub">Enregistrez votre déplacement</div>
-
   <div class="card">
     <div class="form-group">
       <label>📅 Date</label>
@@ -686,22 +269,13 @@
     </div>
     <div class="form-row">
       <div class="form-group">
-        <label>🕐 Heure départ</label>
-        <input type="time" id="s-depart">
+        <label>🔢 N° DEV (chantier)</label>
+        <input type="text" id="s-dev" placeholder="Ex: DEV-2024-001">
       </div>
       <div class="form-group">
-        <label>🕐 Heure retour</label>
-        <input type="time" id="s-retour">
+        <label>📍 Site d'intervention</label>
+        <input type="text" id="s-site" placeholder="Ex: Site EDF">
       </div>
-    </div>
-    <div class="form-group" id="amplitude-preview" style="display:none">
-      <div class="tag vert" style="font-size:13px; padding:8px 14px; width:fit-content">
-        ⏱️ Amplitude : <strong id="amp-val">0h00</strong>
-      </div>
-    </div>
-    <div class="form-group">
-      <label>📍 Site d'intervention</label>
-      <input type="text" id="s-site" placeholder="Ex: Site EDF Dampierre">
     </div>
     <div class="form-row">
       <div class="form-group">
@@ -714,6 +288,33 @@
       </div>
     </div>
 
+    <!-- 4 PLAGES HORAIRES -->
+    <div style="margin-bottom:12px">
+      <div class="card-title" style="margin-bottom:10px">🕐 Horaires</div>
+      <div class="horaires-grid">
+        <div class="horaire-bloc">
+          <div class="horaire-bloc-title">☀️ Matin — Départ</div>
+          <input type="time" id="s-matin-dep">
+        </div>
+        <div class="horaire-bloc">
+          <div class="horaire-bloc-title">🍽️ Matin — Fin</div>
+          <input type="time" id="s-matin-fin">
+        </div>
+        <div class="horaire-bloc">
+          <div class="horaire-bloc-title">🔄 Après-midi — Reprise</div>
+          <input type="time" id="s-apmidi-dep">
+        </div>
+        <div class="horaire-bloc">
+          <div class="horaire-bloc-title">🌙 Après-midi — Fin</div>
+          <input type="time" id="s-apmidi-fin">
+        </div>
+      </div>
+      <div id="amplitude-preview" style="display:none; margin-top:8px">
+        <span class="tag vert" id="amp-display" style="font-size:13px; padding:8px 14px">⏱️ Amplitude : <strong id="amp-val">0h00</strong></span>
+        <span class="tag jaune" id="alerte-10h" style="display:none; font-size:13px; padding:8px 14px">⚠️ Dépasse 10h !</span>
+      </div>
+    </div>
+
     <div class="form-group">
       <label>👥 Déplacement</label>
       <div class="radio-group">
@@ -721,30 +322,22 @@
         <div class="radio-option" id="opt-equipe" onclick="selectPresence('equipe')">En équipe</div>
       </div>
     </div>
-
     <div class="form-group" id="avec-qui-group" style="display:none">
       <label>👤 Avec qui ?</label>
       <input type="text" id="s-avec-qui" placeholder="Prénom(s) des collègues">
     </div>
-
     <div class="form-group">
       <label>💬 Commentaire (optionnel)</label>
       <textarea id="s-commentaire" placeholder="Informations complémentaires..."></textarea>
     </div>
   </div>
-
   <div class="alert alert-error" id="saisie-error"></div>
   <div class="alert alert-success" id="saisie-success"></div>
-
-  <button class="btn btn-primary" onclick="saveSaisie()" id="btn-save">
-    💾 Enregistrer le déplacement
-  </button>
-  <button class="btn btn-secondary" style="margin-top:10px" onclick="backToAccueil()">
-    ← Retour
-  </button>
+  <button class="btn btn-primary" onclick="saveSaisie()" id="btn-save">💾 Enregistrer</button>
+  <button class="btn btn-secondary" style="margin-top:10px" onclick="backToAccueil()">← Retour</button>
 </div>
 
-<!-- ══ PAGE MES SAISIES ══ -->
+<!-- MES SAISIES -->
 <div class="page" id="page-mes-saisies">
   <div class="section-title">📋 Mes déplacements</div>
   <div class="section-sub" id="mes-saisies-sub">Mon historique</div>
@@ -752,23 +345,20 @@
   <button class="btn btn-secondary" style="margin-top:16px" onclick="backToAccueil()">← Retour</button>
 </div>
 
-<!-- ══ PAGE ADMIN ══ -->
+<!-- ADMIN -->
 <div class="page" id="page-admin">
   <div class="nav-tabs">
-    <div class="nav-tab active" onclick="adminTab('tableau')">📊 Tableau</div>
-    <div class="nav-tab" onclick="adminTab('stats')">📈 Stats</div>
-    <div class="nav-tab" onclick="adminTab('employes')">👥 Équipe</div>
+    <div class="nav-tab active" onclick="adminTab('tableau')" id="tab-tableau">📊 Tableau</div>
+    <div class="nav-tab" onclick="adminTab('stats')" id="tab-stats">📈 Stats</div>
+    <div class="nav-tab" onclick="adminTab('alertes')" id="tab-alertes">⚠️ Alertes<span class="badge" id="badge-alertes" style="display:none">0</span></div>
+    <div class="nav-tab" onclick="adminTab('equipe')" id="tab-equipe">👥 Équipe</div>
   </div>
 
   <!-- TABLEAU -->
   <div id="admin-tableau">
     <div class="filter-bar">
-      <select id="filter-employe" onchange="loadAdminSaisies()">
-        <option value="">Tous les employés</option>
-      </select>
-      <select id="filter-mois" onchange="loadAdminSaisies()">
-        <option value="">Tous les mois</option>
-      </select>
+      <select id="filter-employe" onchange="loadAdminSaisies()"><option value="">Tous les employés</option></select>
+      <select id="filter-mois" onchange="loadAdminSaisies()"><option value="">Tous les mois</option></select>
     </div>
     <div class="export-row">
       <button class="btn btn-secondary" onclick="exportCSV()">📥 Export CSV</button>
@@ -778,70 +368,135 @@
 
   <!-- STATS -->
   <div id="admin-stats" style="display:none">
+    <div class="filter-bar">
+      <select id="stats-mode" onchange="loadStats()">
+        <option value="equipe">Vue équipe</option>
+        <option value="individuel">Vue individuelle</option>
+      </select>
+      <select id="stats-employe" onchange="loadStats()" style="display:none"><option value="">Tous</option></select>
+      <select id="stats-periode" onchange="loadStats()">
+        <option value="mois">Par mois</option>
+        <option value="annee">Par année</option>
+      </select>
+      <select id="stats-annee" onchange="loadStats()"></select>
+    </div>
     <div class="stats-grid" id="stats-global"></div>
     <div class="card">
-      <div class="card-title">🏆 Déplacements par employé</div>
+      <div class="card-title" id="chart-dep-title">🏆 Déplacements par employé</div>
       <div class="chart-container" id="chart-deplacements"></div>
     </div>
     <div class="card">
-      <div class="card-title">⏱️ Amplitude moyenne (heures)</div>
+      <div class="card-title" id="chart-amp-title">⏱️ Amplitude moyenne</div>
       <div class="chart-container" id="chart-amplitude"></div>
     </div>
     <div class="card">
-      <div class="card-title">📅 Activité par mois</div>
-      <div class="chart-container" id="chart-mois"></div>
+      <div class="card-title" id="chart-periode-title">📅 Activité</div>
+      <div class="chart-container" id="chart-periode"></div>
     </div>
   </div>
 
-  <!-- EMPLOYES -->
-  <div id="admin-employes" style="display:none">
+  <!-- ALERTES -->
+  <div id="admin-alertes" style="display:none">
+    <div class="card-title" style="margin-bottom:16px; font-size:15px">⚠️ Dépassements 10h</div>
+    <div id="liste-alertes-10h"><div class="loader"><div class="spinner"></div></div></div>
+    <div class="card-title" style="margin:20px 0 16px; font-size:15px">📝 Demandes de modification</div>
+    <div id="liste-demandes"><div class="loader"><div class="spinner"></div></div></div>
+  </div>
+
+  <!-- EQUIPE -->
+  <div id="admin-equipe" style="display:none">
     <div class="card">
       <div class="card-title">➕ Ajouter un employé</div>
       <div class="form-row">
-        <div class="form-group">
-          <label>Nom</label>
-          <input type="text" id="new-nom" placeholder="Prénom Nom">
-        </div>
-        <div class="form-group">
-          <label>PIN (4-6 chiffres)</label>
-          <input type="text" id="new-pin" placeholder="Ex: 1234" maxlength="6">
-        </div>
+        <div class="form-group"><label>Nom</label><input type="text" id="new-nom" placeholder="Prénom Nom"></div>
+        <div class="form-group"><label>PIN (4-6 chiffres)</label><input type="text" id="new-pin" placeholder="Ex: 1234" maxlength="6"></div>
       </div>
       <button class="btn btn-success" onclick="addEmploye()">➕ Ajouter</button>
       <div class="alert alert-success" id="emp-success"></div>
       <div class="alert alert-error" id="emp-error"></div>
     </div>
-    <div id="employes-list"><div class="loader"><div class="spinner"></div> Chargement...</div></div>
+    <div id="employes-list"><div class="loader"><div class="spinner"></div></div></div>
   </div>
 </div>
 
-<!-- ══ MODAL CONFIRMATION ══ -->
+<!-- MODAL EDIT SAISIE (admin) -->
+<div class="modal-overlay" id="modal-edit-saisie">
+  <div class="modal">
+    <div class="modal-title">✏️ Modifier la saisie</div>
+    <input type="hidden" id="edit-saisie-id">
+    <div class="form-row">
+      <div class="form-group"><label>Date</label><input type="date" id="edit-date"></div>
+      <div class="form-group"><label>N° DEV</label><input type="text" id="edit-dev"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>Site</label><input type="text" id="edit-site"></div>
+      <div class="form-group"><label>Ville</label><input type="text" id="edit-ville"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>Camion</label><input type="text" id="edit-camion"></div>
+      <div class="form-group"><label>Avec qui</label><input type="text" id="edit-avec-qui"></div>
+    </div>
+    <div class="horaires-grid" style="margin-top:8px">
+      <div class="horaire-bloc"><div class="horaire-bloc-title">☀️ Matin départ</div><input type="time" id="edit-matin-dep"></div>
+      <div class="horaire-bloc"><div class="horaire-bloc-title">🍽️ Matin fin</div><input type="time" id="edit-matin-fin"></div>
+      <div class="horaire-bloc"><div class="horaire-bloc-title">🔄 AM reprise</div><input type="time" id="edit-apmidi-dep"></div>
+      <div class="horaire-bloc"><div class="horaire-bloc-title">🌙 AM fin</div><input type="time" id="edit-apmidi-fin"></div>
+    </div>
+    <div class="form-group" style="margin-top:10px"><label>Commentaire</label><textarea id="edit-commentaire"></textarea></div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeModal('modal-edit-saisie')">Annuler</button>
+      <button class="btn btn-primary" onclick="saveEditSaisie()">💾 Enregistrer</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL EDIT PIN -->
+<div class="modal-overlay" id="modal-edit-pin">
+  <div class="modal">
+    <div class="modal-title">🔑 Modifier le PIN</div>
+    <input type="hidden" id="edit-pin-id">
+    <div class="form-group"><label id="edit-pin-nom-label">Employé</label></div>
+    <div class="form-group"><label>Nouveau PIN (4-6 chiffres)</label><input type="text" id="edit-pin-val" maxlength="6" placeholder="Nouveau PIN"></div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeModal('modal-edit-pin')">Annuler</button>
+      <button class="btn btn-primary" onclick="savePin()">💾 Enregistrer</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL DEMANDE MODIFICATION (employé) -->
+<div class="modal-overlay" id="modal-demande">
+  <div class="modal">
+    <div class="modal-title">📝 Demander une modification</div>
+    <input type="hidden" id="demande-saisie-id">
+    <div class="form-group"><label>Ce que vous souhaitez modifier</label><textarea id="demande-texte" placeholder="Décrivez ce qui doit être corrigé..."></textarea></div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeModal('modal-demande')">Annuler</button>
+      <button class="btn btn-primary" onclick="saveDemande()">📤 Envoyer la demande</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL CONFIRM -->
 <div class="modal-overlay" id="modal-confirm">
   <div class="modal">
-    <div class="modal-title" id="modal-title">Confirmer</div>
-    <div id="modal-body" style="font-size:14px; color:var(--gris-texte)"></div>
+    <div class="modal-title" id="modal-confirm-title">Confirmer</div>
+    <div id="modal-confirm-body" style="font-size:14px; color:var(--gris-texte)"></div>
     <div class="modal-actions">
-      <button class="btn btn-secondary" onclick="closeModal()">Annuler</button>
-      <button class="btn btn-primary" id="modal-confirm-btn">Confirmer</button>
+      <button class="btn btn-secondary" onclick="closeModal('modal-confirm')">Annuler</button>
+      <button class="btn btn-danger" id="modal-confirm-btn">Confirmer</button>
     </div>
   </div>
 </div>
 
 <script>
-// ══════════════════════════════════════════
-// CONFIG SUPABASE
-// ══════════════════════════════════════════
 const SUPABASE_URL = 'https://qafirvogcemuahistgyr.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFhZmlydm9nY2VtdWFoaXN0Z3lyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE3NjE3NDYsImV4cCI6MjA5NzMzNzc0Nn0.e4DjYEkHf5vDrqQuQQjCXwLunoMwOi1ypxPmjbeaB0I';
 
 const api = {
-  async get(table, params = '') {
+  async get(table, params='') {
     const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}?${params}`, {
-      headers: {
-        'apikey': SUPABASE_KEY,
-        'Authorization': `Bearer ${SUPABASE_KEY}`,
-        'Content-Type': 'application/json'
-      }
+      headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
     });
     if (!res.ok) throw new Error(await res.text());
     return res.json();
@@ -849,12 +504,7 @@ const api = {
   async post(table, data) {
     const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}`, {
       method: 'POST',
-      headers: {
-        'apikey': SUPABASE_KEY,
-        'Authorization': `Bearer ${SUPABASE_KEY}`,
-        'Content-Type': 'application/json',
-        'Prefer': 'return=representation'
-      },
+      headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json', 'Prefer': 'return=representation' },
       body: JSON.stringify(data)
     });
     if (!res.ok) throw new Error(await res.text());
@@ -863,11 +513,7 @@ const api = {
   async patch(table, id, data) {
     const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}?id=eq.${id}`, {
       method: 'PATCH',
-      headers: {
-        'apikey': SUPABASE_KEY,
-        'Authorization': `Bearer ${SUPABASE_KEY}`,
-        'Content-Type': 'application/json'
-      },
+      headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json' },
       body: JSON.stringify(data)
     });
     if (!res.ok) throw new Error(await res.text());
@@ -876,541 +522,597 @@ const api = {
   async delete(table, id) {
     const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}?id=eq.${id}`, {
       method: 'DELETE',
-      headers: {
-        'apikey': SUPABASE_KEY,
-        'Authorization': `Bearer ${SUPABASE_KEY}`
-      }
+      headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
     });
     if (!res.ok) throw new Error(await res.text());
     return true;
   }
 };
 
-// ══════════════════════════════════════════
-// STATE
-// ══════════════════════════════════════════
 let currentUser = null;
 let pinBuffer = '';
 let modePresence = 'seul';
 let allSaisies = [];
-let allEmployes = [];
 
-// ══════════════════════════════════════════
-// INIT
-// ══════════════════════════════════════════
+// ── INIT ──
 window.addEventListener('DOMContentLoaded', async () => {
   await loadEmployesLogin();
-  const today = new Date().toISOString().split('T')[0];
-  document.getElementById('s-date').value = today;
-
-  // Calcul amplitude en temps réel
-  document.getElementById('s-depart').addEventListener('change', calcAmplitude);
-  document.getElementById('s-retour').addEventListener('change', calcAmplitude);
+  document.getElementById('s-date').value = new Date().toISOString().split('T')[0];
+  ['s-matin-dep','s-matin-fin','s-apmidi-dep','s-apmidi-fin'].forEach(id => {
+    document.getElementById(id).addEventListener('change', calcAmplitude);
+  });
+  // Stats année
+  const sel = document.getElementById('stats-annee');
+  const y = new Date().getFullYear();
+  for (let i = y; i >= y-3; i--) {
+    const o = document.createElement('option'); o.value = i; o.textContent = i; sel.appendChild(o);
+  }
 });
 
 async function loadEmployesLogin() {
   try {
-    const employes = await api.get('employes', 'actif=eq.true&order=nom.asc&select=id,nom');
+    const emp = await api.get('employes', 'actif=eq.true&order=nom.asc&select=id,nom');
     const sel = document.getElementById('login-select');
-    employes.forEach(e => {
-      const opt = document.createElement('option');
-      opt.value = e.id;
-      opt.textContent = e.nom;
-      sel.appendChild(opt);
-    });
-  } catch(err) {
-    console.error('Erreur chargement employés:', err);
-  }
+    emp.forEach(e => { const o = document.createElement('option'); o.value = e.id; o.textContent = e.nom; sel.appendChild(o); });
+  } catch(e) { console.error(e); }
 }
 
-// ══════════════════════════════════════════
-// PIN KEYPAD
-// ══════════════════════════════════════════
+// ── PIN ──
 function pinKey(k) {
   if (pinBuffer.length >= 6) return;
   pinBuffer += k;
   updatePinDisplay();
 }
-
-function pinDel() {
-  pinBuffer = pinBuffer.slice(0, -1);
-  updatePinDisplay();
-}
-
+function pinDel() { pinBuffer = pinBuffer.slice(0,-1); updatePinDisplay(); }
 function updatePinDisplay() {
-  for (let i = 0; i < 6; i++) {
-    document.getElementById('d' + i).classList.toggle('filled', i < pinBuffer.length);
-  }
+  for (let i=0; i<6; i++) document.getElementById('d'+i).classList.toggle('filled', i < pinBuffer.length);
   document.getElementById('login-error').classList.remove('show');
 }
 
 async function tryLogin() {
   const empId = document.getElementById('login-select').value;
-  if (!empId) {
-    showAlert('login-error', 'Veuillez sélectionner votre nom.');
-    pinBuffer = ''; updatePinDisplay(); return;
-  }
-
+  if (!empId || !pinBuffer) { showAlert('login-error','Sélectionnez votre nom et saisissez votre PIN.'); return; }
   document.getElementById('login-loader').style.display = 'flex';
-
   try {
-    const result = await api.get('employes', `id=eq.${empId}&pin=eq.${pinBuffer}&actif=eq.true&select=*`);
+    const r = await api.get('employes', `id=eq.${empId}&pin=eq.${pinBuffer}&actif=eq.true&select=*`);
     document.getElementById('login-loader').style.display = 'none';
-
-    if (result.length === 0) {
-      showAlert('login-error', 'PIN incorrect. Réessayez.');
-      pinBuffer = ''; updatePinDisplay(); return;
-    }
-
-    currentUser = result[0];
+    if (!r.length) { showAlert('login-error','PIN incorrect.'); pinBuffer=''; updatePinDisplay(); return; }
+    currentUser = r[0];
     onLogin();
-  } catch(err) {
+  } catch(e) {
     document.getElementById('login-loader').style.display = 'none';
-    showAlert('login-error', 'Erreur de connexion. Vérifiez votre réseau.');
-    pinBuffer = ''; updatePinDisplay();
+    showAlert('login-error','Erreur réseau.');
+    pinBuffer=''; updatePinDisplay();
   }
 }
 
-function onLogin() {
+async function onLogin() {
   document.getElementById('app-header').style.display = 'flex';
   document.getElementById('header-nom').textContent = currentUser.nom;
   document.getElementById('header-role').textContent = currentUser.role === 'admin' ? 'ADMIN' : 'EMPLOYÉ';
   document.getElementById('accueil-nom').textContent = currentUser.nom;
-
   if (currentUser.role === 'admin') {
     showPage('page-admin');
     loadAdminSaisies();
     loadFilterEmployes();
     loadFilterMois();
+    checkAlertes();
   } else {
     showPage('page-accueil');
   }
 }
 
 function logout() {
-  currentUser = null;
-  pinBuffer = '';
-  updatePinDisplay();
+  currentUser = null; pinBuffer = ''; updatePinDisplay();
   document.getElementById('login-select').value = '';
   document.getElementById('app-header').style.display = 'none';
   showPage('page-login');
 }
 
-// ══════════════════════════════════════════
-// NAVIGATION
-// ══════════════════════════════════════════
+// ── NAV ──
 function showPage(id) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.getElementById(id).classList.add('active');
 }
-
 function backToAccueil() {
   if (currentUser.role === 'admin') showPage('page-admin');
   else showPage('page-accueil');
 }
+function showMesSaisies() { showPage('page-mes-saisies'); loadMesSaisies(); }
 
-function showMesSaisies() {
-  showPage('page-mes-saisies');
-  loadMesSaisies();
-}
-
-// ══════════════════════════════════════════
-// SAISIE
-// ══════════════════════════════════════════
-function selectPresence(mode) {
-  modePresence = mode;
-  document.getElementById('opt-seul').classList.toggle('selected', mode === 'seul');
-  document.getElementById('opt-equipe').classList.toggle('selected', mode === 'equipe');
-  document.getElementById('avec-qui-group').style.display = mode === 'equipe' ? 'block' : 'none';
-}
-
+// ── HORAIRES ──
 function calcAmplitude() {
-  const dep = document.getElementById('s-depart').value;
-  const ret = document.getElementById('s-retour').value;
-  if (!dep || !ret) { document.getElementById('amplitude-preview').style.display = 'none'; return; }
-  const [dh, dm] = dep.split(':').map(Number);
-  const [rh, rm] = ret.split(':').map(Number);
-  let mins = (rh * 60 + rm) - (dh * 60 + dm);
-  if (mins < 0) mins += 24 * 60;
-  const h = Math.floor(mins / 60);
-  const m = mins % 60;
+  const md = document.getElementById('s-matin-dep').value;
+  const mf = document.getElementById('s-matin-fin').value;
+  const ad = document.getElementById('s-apmidi-dep').value;
+  const af = document.getElementById('s-apmidi-fin').value;
+  if (!md && !af) { document.getElementById('amplitude-preview').style.display='none'; return; }
+  let total = 0;
+  if (md && mf) total += timeDiff(md, mf);
+  if (ad && af) total += timeDiff(ad, af);
+  const h = Math.floor(total/60), m = total%60;
   document.getElementById('amp-val').textContent = `${h}h${String(m).padStart(2,'0')}`;
   document.getElementById('amplitude-preview').style.display = 'block';
+  document.getElementById('alerte-10h').style.display = total > 600 ? 'inline-flex' : 'none';
+}
+
+function timeDiff(t1, t2) {
+  const [h1,m1] = t1.split(':').map(Number);
+  const [h2,m2] = t2.split(':').map(Number);
+  let d = (h2*60+m2) - (h1*60+m1);
+  if (d < 0) d += 24*60;
+  return d;
+}
+
+function calcAmplitudeVal(md, mf, ad, af) {
+  let total = 0;
+  if (md && mf) total += timeDiff(md, mf);
+  if (ad && af) total += timeDiff(ad, af);
+  return total / 60;
+}
+
+// ── SAISIE ──
+function selectPresence(mode) {
+  modePresence = mode;
+  document.getElementById('opt-seul').classList.toggle('selected', mode==='seul');
+  document.getElementById('opt-equipe').classList.toggle('selected', mode==='equipe');
+  document.getElementById('avec-qui-group').style.display = mode==='equipe' ? 'block' : 'none';
 }
 
 async function saveSaisie() {
   const date = document.getElementById('s-date').value;
-  const depart = document.getElementById('s-depart').value;
-  const retour = document.getElementById('s-retour').value;
   const site = document.getElementById('s-site').value.trim();
-  const ville = document.getElementById('s-ville').value.trim();
-  const camion = document.getElementById('s-camion').value.trim();
-  const avecQui = document.getElementById('s-avec-qui').value.trim();
-  const commentaire = document.getElementById('s-commentaire').value.trim();
+  const md = document.getElementById('s-matin-dep').value;
+  const mf = document.getElementById('s-matin-fin').value;
+  const ad = document.getElementById('s-apmidi-dep').value;
+  const af = document.getElementById('s-apmidi-fin').value;
 
-  if (!date || !depart || !retour || !site) {
-    showAlert('saisie-error', 'Remplissez au minimum : date, heures et site.');
-    return;
-  }
+  if (!date || !site || (!md && !ad)) { showAlert('saisie-error','Remplissez au minimum : date, site et au moins une plage horaire.'); return; }
 
+  const amplitude = calcAmplitudeVal(md, mf, ad, af);
   const btn = document.getElementById('btn-save');
-  btn.disabled = true;
-  btn.textContent = '⏳ Enregistrement...';
+  btn.disabled = true; btn.textContent = '⏳ Enregistrement...';
 
   try {
     await api.post('saisies', {
       employe_id: currentUser.id,
       employe_nom: currentUser.nom,
       date,
-      heure_depart: depart,
-      heure_retour: retour,
+      heure_depart: md || null,
+      heure_retour: af || ad || null,
+      matin_depart: md || null,
+      matin_fin: mf || null,
+      apmidi_depart: ad || null,
+      apmidi_fin: af || null,
+      amplitude,
       site,
-      ville: ville || null,
-      camion: camion || null,
-      avec_qui: modePresence === 'equipe' ? (avecQui || null) : null,
-      seul: modePresence === 'seul',
-      commentaire: commentaire || null
+      ville: document.getElementById('s-ville').value.trim() || null,
+      camion: document.getElementById('s-camion').value.trim() || null,
+      numero_dev: document.getElementById('s-dev').value.trim() || null,
+      avec_qui: modePresence==='equipe' ? document.getElementById('s-avec-qui').value.trim() || null : null,
+      seul: modePresence==='seul',
+      commentaire: document.getElementById('s-commentaire').value.trim() || null
     });
-
-    showAlert('saisie-success', '✅ Déplacement enregistré avec succès !');
-
-    // Reset form
-    const today = new Date().toISOString().split('T')[0];
-    document.getElementById('s-date').value = today;
-    document.getElementById('s-depart').value = '';
-    document.getElementById('s-retour').value = '';
-    document.getElementById('s-site').value = '';
-    document.getElementById('s-ville').value = '';
-    document.getElementById('s-camion').value = '';
-    document.getElementById('s-avec-qui').value = '';
-    document.getElementById('s-commentaire').value = '';
-    document.getElementById('amplitude-preview').style.display = 'none';
+    showAlert('saisie-success', amplitude > 10 ? '✅ Enregistré ! ⚠️ Amplitude > 10h — votre responsable sera notifié.' : '✅ Déplacement enregistré !');
+    // Reset
+    ['s-dev','s-site','s-ville','s-camion','s-avec-qui','s-commentaire','s-matin-dep','s-matin-fin','s-apmidi-dep','s-apmidi-fin'].forEach(id => document.getElementById(id).value='');
+    document.getElementById('s-date').value = new Date().toISOString().split('T')[0];
+    document.getElementById('amplitude-preview').style.display='none';
     selectPresence('seul');
-
-    setTimeout(() => {
-      document.getElementById('saisie-success').classList.remove('show');
-      backToAccueil();
-    }, 2000);
-
-  } catch(err) {
-    showAlert('saisie-error', 'Erreur lors de l\'enregistrement : ' + err.message);
-  }
-
-  btn.disabled = false;
-  btn.textContent = '💾 Enregistrer le déplacement';
+    setTimeout(() => { document.getElementById('saisie-success').classList.remove('show'); backToAccueil(); }, 2500);
+  } catch(e) { showAlert('saisie-error','Erreur : '+e.message); }
+  btn.disabled=false; btn.textContent='💾 Enregistrer';
 }
 
-// ══════════════════════════════════════════
-// MES SAISIES
-// ══════════════════════════════════════════
+// ── MES SAISIES ──
 async function loadMesSaisies() {
-  const container = document.getElementById('mes-saisies-list');
-  container.innerHTML = '<div class="loader"><div class="spinner"></div> Chargement...</div>';
+  const c = document.getElementById('mes-saisies-list');
+  c.innerHTML = '<div class="loader"><div class="spinner"></div> Chargement...</div>';
   try {
-    const data = await api.get('saisies',
-      `employe_id=eq.${currentUser.id}&order=date.desc,heure_depart.desc&select=*`
-    );
-    document.getElementById('mes-saisies-sub').textContent = `${data.length} déplacement(s) enregistré(s)`;
-    container.innerHTML = data.length === 0
-      ? '<div class="empty-state"><div class="icon">📭</div><p>Aucun déplacement enregistré.</p></div>'
-      : data.map(s => renderSaisieCard(s)).join('');
-  } catch(err) {
-    container.innerHTML = '<div class="empty-state"><p>Erreur de chargement.</p></div>';
-  }
+    const data = await api.get('saisies', `employe_id=eq.${currentUser.id}&order=date.desc&select=*`);
+    document.getElementById('mes-saisies-sub').textContent = `${data.length} déplacement(s)`;
+    c.innerHTML = data.length === 0
+      ? '<div class="empty-state"><div class="icon">📭</div><p>Aucun déplacement.</p></div>'
+      : data.map(s => renderSaisieCard(s, false, true)).join('');
+  } catch(e) { c.innerHTML = '<div class="empty-state"><p>Erreur.</p></div>'; }
 }
 
-// ══════════════════════════════════════════
-// ADMIN — TABLEAU
-// ══════════════════════════════════════════
+// ── ADMIN TABLEAU ──
 async function loadFilterEmployes() {
   try {
-    const employes = await api.get('employes', 'actif=eq.true&order=nom.asc&select=id,nom');
+    const emp = await api.get('employes', 'actif=eq.true&order=nom.asc&select=id,nom');
     const sel = document.getElementById('filter-employe');
-    employes.forEach(e => {
-      const opt = document.createElement('option');
-      opt.value = e.id;
-      opt.textContent = e.nom;
-      sel.appendChild(opt);
+    const sel2 = document.getElementById('stats-employe');
+    emp.forEach(e => {
+      [sel, sel2].forEach(s => { const o = document.createElement('option'); o.value = e.id; o.textContent = e.nom; s.appendChild(o); });
     });
-  } catch(err) {}
+  } catch(e) {}
 }
 
 async function loadFilterMois() {
   const sel = document.getElementById('filter-mois');
   const now = new Date();
-  for (let i = 0; i < 12; i++) {
-    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+  const labels = {1:'Jan',2:'Fév',3:'Mar',4:'Avr',5:'Mai',6:'Jun',7:'Jul',8:'Aoû',9:'Sep',10:'Oct',11:'Nov',12:'Déc'};
+  for (let i=0; i<12; i++) {
+    const d = new Date(now.getFullYear(), now.getMonth()-i, 1);
     const val = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
-    const opt = document.createElement('option');
-    opt.value = val;
-    opt.textContent = d.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
-    sel.appendChild(opt);
+    const o = document.createElement('option'); o.value = val;
+    o.textContent = labels[d.getMonth()+1]+' '+d.getFullYear(); sel.appendChild(o);
   }
 }
 
 async function loadAdminSaisies() {
-  const container = document.getElementById('admin-saisies-list');
-  container.innerHTML = '<div class="loader"><div class="spinner"></div> Chargement...</div>';
-
-  let params = 'order=date.desc,heure_depart.desc&select=*';
-  const empFilter = document.getElementById('filter-employe').value;
-  const moisFilter = document.getElementById('filter-mois').value;
-
-  if (empFilter) params += `&employe_id=eq.${empFilter}`;
-  if (moisFilter) {
-    const [y, m] = moisFilter.split('-');
-    const debut = `${y}-${m}-01`;
-    const fin = new Date(y, m, 0).toISOString().split('T')[0];
-    params += `&date=gte.${debut}&date=lte.${fin}`;
-  }
-
+  const c = document.getElementById('admin-saisies-list');
+  c.innerHTML = '<div class="loader"><div class="spinner"></div></div>';
+  let params = 'order=date.desc&select=*';
+  const ef = document.getElementById('filter-employe').value;
+  const mf = document.getElementById('filter-mois').value;
+  if (ef) params += `&employe_id=eq.${ef}`;
+  if (mf) { const [y,m] = mf.split('-'); params += `&date=gte.${y}-${m}-01&date=lte.${y}-${m}-${new Date(y,m,0).getDate()}`; }
   try {
     allSaisies = await api.get('saisies', params);
-    container.innerHTML = allSaisies.length === 0
-      ? '<div class="empty-state"><div class="icon">📭</div><p>Aucune saisie trouvée.</p></div>'
-      : allSaisies.map(s => renderSaisieCard(s, true)).join('');
-  } catch(err) {
-    container.innerHTML = '<div class="empty-state"><p>Erreur de chargement.</p></div>';
-  }
+    c.innerHTML = allSaisies.length === 0
+      ? '<div class="empty-state"><div class="icon">📭</div><p>Aucune saisie.</p></div>'
+      : allSaisies.map(s => renderSaisieCard(s, true, false)).join('');
+  } catch(e) { c.innerHTML = '<div class="empty-state"><p>Erreur.</p></div>'; }
 }
 
-function renderSaisieCard(s, showNom = false) {
+function renderSaisieCard(s, isAdmin, canDemande) {
   const amp = parseFloat(s.amplitude) || 0;
-  const h = Math.floor(amp);
-  const m = Math.round((amp - h) * 60);
+  const h = Math.floor(amp), m = Math.round((amp-h)*60);
   const ampStr = `${h}h${String(m).padStart(2,'0')}`;
-  const dateStr = new Date(s.date).toLocaleDateString('fr-FR', { weekday:'short', day:'numeric', month:'short' });
+  const alerte = amp > 10;
+  const dateStr = s.date ? new Date(s.date+'T12:00:00').toLocaleDateString('fr-FR',{weekday:'short',day:'numeric',month:'short'}) : '';
 
-  return `<div class="saisie-item">
+  const horaires = [];
+  if (s.matin_depart) horaires.push(`☀️ ${s.matin_depart.slice(0,5)}→${(s.matin_fin||'?').slice(0,5)}`);
+  if (s.apmidi_depart) horaires.push(`🔄 ${s.apmidi_depart.slice(0,5)}→${(s.apmidi_fin||'?').slice(0,5)}`);
+  if (!horaires.length && s.heure_depart) horaires.push(`🕐 ${s.heure_depart.slice(0,5)}→${(s.heure_retour||'?').slice(0,5)}`);
+
+  return `<div class="saisie-item ${alerte?'alerte-10h':''}">
     <div class="saisie-header">
       <div>
-        ${showNom ? `<div class="saisie-nom">👤 ${s.employe_nom}</div>` : ''}
+        ${isAdmin ? `<div class="saisie-nom">👤 ${s.employe_nom}</div>` : ''}
         <div class="saisie-date">📅 ${dateStr}</div>
       </div>
-      <span class="amplitude-badge">⏱️ ${ampStr}</span>
+      <span class="amplitude-badge ${alerte?'alerte':''}">${alerte?'⚠️':''} ${ampStr}</span>
     </div>
     <div class="saisie-infos">
-      <span class="tag bleu">🕐 ${s.heure_depart?.slice(0,5)} → ${s.heure_retour?.slice(0,5)}</span>
+      ${horaires.map(h=>`<span class="tag bleu">${h}</span>`).join('')}
+      ${s.numero_dev ? `<span class="tag orange">🔢 ${s.numero_dev}</span>` : ''}
       <span class="tag rouge">📍 ${s.site}</span>
       ${s.ville ? `<span class="tag">🏙️ ${s.ville}</span>` : ''}
       ${s.camion ? `<span class="tag orange">🚛 ${s.camion}</span>` : ''}
-      ${s.seul ? '<span class="tag">👤 Seul</span>' : `<span class="tag vert">👥 ${s.avec_qui || 'Équipe'}</span>`}
+      ${s.seul ? '<span class="tag">👤 Seul</span>' : `<span class="tag vert">👥 ${s.avec_qui||'Équipe'}</span>`}
       ${s.commentaire ? `<span class="tag">💬 ${s.commentaire}</span>` : ''}
+    </div>
+    <div class="saisie-actions">
+      ${isAdmin ? `<button class="btn-sm btn-sm-warning" onclick="openEditSaisie('${s.id}')">✏️ Modifier</button>` : ''}
+      ${isAdmin ? `<button class="btn-sm btn-sm-danger" onclick="confirmDeleteSaisie('${s.id}')">🗑️ Supprimer</button>` : ''}
+      ${canDemande ? `<button class="btn-sm btn-sm-warning" onclick="openDemande('${s.id}')">📝 Demander correction</button>` : ''}
     </div>
   </div>`;
 }
 
-// ══════════════════════════════════════════
-// ADMIN — STATS
-// ══════════════════════════════════════════
+// ── ADMIN TABS ──
 function adminTab(tab) {
-  document.querySelectorAll('.nav-tab').forEach((t,i) => {
-    t.classList.toggle('active', ['tableau','stats','employes'][i] === tab);
+  ['tableau','stats','alertes','equipe'].forEach(t => {
+    document.getElementById('tab-'+t).classList.toggle('active', t===tab);
+    document.getElementById('admin-'+t).style.display = t===tab ? 'block' : 'none';
   });
-  document.getElementById('admin-tableau').style.display = tab === 'tableau' ? 'block' : 'none';
-  document.getElementById('admin-stats').style.display = tab === 'stats' ? 'block' : 'none';
-  document.getElementById('admin-employes').style.display = tab === 'employes' ? 'block' : 'none';
-
-  if (tab === 'stats') loadStats();
-  if (tab === 'employes') loadEmployesList();
+  if (tab==='stats') loadStats();
+  if (tab==='equipe') loadEmployesList();
+  if (tab==='alertes') loadAlertes();
 }
 
-async function loadStats() {
+// ── ALERTES ──
+async function checkAlertes() {
   try {
-    const data = await api.get('saisies', 'select=*&order=date.asc');
-    allSaisies = data;
+    const saisies = await api.get('saisies', 'select=amplitude');
+    const demandes = await api.get('demandes_modification', 'statut=eq.en_attente&select=id');
+    const nb10h = saisies.filter(s => parseFloat(s.amplitude) > 10).length;
+    const total = nb10h + demandes.length;
+    const badge = document.getElementById('badge-alertes');
+    const headerBadge = document.getElementById('header-alert-badge');
+    if (total > 0) {
+      badge.textContent = total; badge.style.display='flex';
+      headerBadge.textContent = total; headerBadge.style.display='flex';
+    }
+  } catch(e) {}
+}
 
-    // Stats globales
+async function loadAlertes() {
+  // 10h
+  const c10 = document.getElementById('liste-alertes-10h');
+  c10.innerHTML = '<div class="loader"><div class="spinner"></div></div>';
+  try {
+    const data = await api.get('saisies', 'order=date.desc&select=*');
+    const alertes = data.filter(s => parseFloat(s.amplitude) > 10);
+    c10.innerHTML = alertes.length === 0
+      ? '<div class="empty-state"><div class="icon">✅</div><p>Aucun dépassement.</p></div>'
+      : alertes.map(s => {
+          const amp = parseFloat(s.amplitude);
+          const h = Math.floor(amp), m = Math.round((amp-h)*60);
+          const date = s.date ? new Date(s.date+'T12:00:00').toLocaleDateString('fr-FR') : '';
+          return `<div class="alerte-item">
+            <div style="display:flex;justify-content:space-between;align-items:center">
+              <div><strong>${s.employe_nom}</strong> — ${date}<br><small style="color:var(--gris-texte)">${s.site||''}</small></div>
+              <span class="amplitude-badge alerte">⚠️ ${h}h${String(m).padStart(2,'0')}</span>
+            </div>
+            <div style="display:flex;gap:6px;margin-top:8px">
+              <button class="btn-sm btn-sm-warning" onclick="openEditSaisie('${s.id}')">✏️ Lisser les horaires</button>
+            </div>
+          </div>`;
+        }).join('');
+  } catch(e) { c10.innerHTML='<p>Erreur</p>'; }
+
+  // Demandes
+  const cd = document.getElementById('liste-demandes');
+  cd.innerHTML = '<div class="loader"><div class="spinner"></div></div>';
+  try {
+    const dem = await api.get('demandes_modification', 'order=created_at.desc&select=*');
+    cd.innerHTML = dem.length === 0
+      ? '<div class="empty-state"><div class="icon">✅</div><p>Aucune demande.</p></div>'
+      : dem.map(d => `<div class="demande-item">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+            <strong>${d.employe_nom}</strong>
+            <span class="tag ${d.statut==='en_attente'?'jaune':d.statut==='validee'?'vert':'rouge'}">${d.statut}</span>
+          </div>
+          <div style="font-size:13px;color:var(--gris-texte);margin-bottom:10px">${d.commentaire||''}</div>
+          ${d.statut==='en_attente' ? `<div style="display:flex;gap:6px">
+            <button class="btn-sm btn-sm-success" onclick="traiterDemande('${d.id}','validee','${d.saisie_id}')">✅ Valider</button>
+            <button class="btn-sm btn-sm-danger" onclick="traiterDemande('${d.id}','refusee',null)">❌ Refuser</button>
+            <button class="btn-sm btn-sm-warning" onclick="openEditSaisie('${d.saisie_id}')">✏️ Modifier saisie</button>
+          </div>` : ''}
+        </div>`).join('');
+  } catch(e) { cd.innerHTML='<p>Erreur</p>'; }
+}
+
+async function traiterDemande(id, statut, saisieId) {
+  try {
+    await api.patch('demandes_modification', id, { statut });
+    if (statut==='validee' && saisieId) openEditSaisie(saisieId);
+    else loadAlertes();
+  } catch(e) { alert('Erreur'); }
+}
+
+// ── EDIT SAISIE (admin) ──
+async function openEditSaisie(id) {
+  try {
+    const data = await api.get('saisies', `id=eq.${id}&select=*`);
+    if (!data.length) return;
+    const s = data[0];
+    document.getElementById('edit-saisie-id').value = s.id;
+    document.getElementById('edit-date').value = s.date||'';
+    document.getElementById('edit-dev').value = s.numero_dev||'';
+    document.getElementById('edit-site').value = s.site||'';
+    document.getElementById('edit-ville').value = s.ville||'';
+    document.getElementById('edit-camion').value = s.camion||'';
+    document.getElementById('edit-avec-qui').value = s.avec_qui||'';
+    document.getElementById('edit-matin-dep').value = s.matin_depart?.slice(0,5)||s.heure_depart?.slice(0,5)||'';
+    document.getElementById('edit-matin-fin').value = s.matin_fin?.slice(0,5)||'';
+    document.getElementById('edit-apmidi-dep').value = s.apmidi_depart?.slice(0,5)||'';
+    document.getElementById('edit-apmidi-fin').value = s.apmidi_fin?.slice(0,5)||s.heure_retour?.slice(0,5)||'';
+    document.getElementById('edit-commentaire').value = s.commentaire||'';
+    document.getElementById('modal-edit-saisie').classList.add('show');
+  } catch(e) { alert('Erreur chargement'); }
+}
+
+async function saveEditSaisie() {
+  const id = document.getElementById('edit-saisie-id').value;
+  const md = document.getElementById('edit-matin-dep').value;
+  const mf = document.getElementById('edit-matin-fin').value;
+  const ad = document.getElementById('edit-apmidi-dep').value;
+  const af = document.getElementById('edit-apmidi-fin').value;
+  const amplitude = calcAmplitudeVal(md, mf, ad, af);
+  try {
+    await api.patch('saisies', id, {
+      date: document.getElementById('edit-date').value,
+      numero_dev: document.getElementById('edit-dev').value||null,
+      site: document.getElementById('edit-site').value,
+      ville: document.getElementById('edit-ville').value||null,
+      camion: document.getElementById('edit-camion').value||null,
+      avec_qui: document.getElementById('edit-avec-qui').value||null,
+      matin_depart: md||null, matin_fin: mf||null,
+      apmidi_depart: ad||null, apmidi_fin: af||null,
+      heure_depart: md||null, heure_retour: af||ad||null,
+      amplitude,
+      commentaire: document.getElementById('edit-commentaire').value||null
+    });
+    closeModal('modal-edit-saisie');
+    loadAdminSaisies();
+    loadAlertes();
+  } catch(e) { alert('Erreur : '+e.message); }
+}
+
+// ── DELETE SAISIE ──
+function confirmDeleteSaisie(id) {
+  document.getElementById('modal-confirm-title').textContent = 'Supprimer cette saisie ?';
+  document.getElementById('modal-confirm-body').textContent = 'Cette action est irréversible.';
+  document.getElementById('modal-confirm-btn').onclick = () => deleteSaisie(id);
+  document.getElementById('modal-confirm').classList.add('show');
+}
+async function deleteSaisie(id) {
+  closeModal('modal-confirm');
+  try { await api.delete('saisies', id); loadAdminSaisies(); } catch(e) { alert('Erreur'); }
+}
+
+// ── DEMANDE MODIFICATION (employé) ──
+function openDemande(saisieId) {
+  document.getElementById('demande-saisie-id').value = saisieId;
+  document.getElementById('demande-texte').value = '';
+  document.getElementById('modal-demande').classList.add('show');
+}
+async function saveDemande() {
+  const saisieId = document.getElementById('demande-saisie-id').value;
+  const texte = document.getElementById('demande-texte').value.trim();
+  if (!texte) { alert('Décrivez la modification souhaitée.'); return; }
+  try {
+    await api.post('demandes_modification', {
+      saisie_id: saisieId,
+      employe_id: currentUser.id,
+      employe_nom: currentUser.nom,
+      modifications: {},
+      commentaire: texte,
+      statut: 'en_attente'
+    });
+    closeModal('modal-demande');
+    alert('✅ Demande envoyée ! Votre responsable va la traiter.');
+  } catch(e) { alert('Erreur : '+e.message); }
+}
+
+// ── STATS ──
+async function loadStats() {
+  const mode = document.getElementById('stats-mode').value;
+  const periode = document.getElementById('stats-periode').value;
+  const annee = document.getElementById('stats-annee').value;
+  const empId = document.getElementById('stats-employe').value;
+  document.getElementById('stats-employe').style.display = mode==='individuel' ? 'block' : 'none';
+
+  let params = `select=*&order=date.asc`;
+  if (annee) params += `&date=gte.${annee}-01-01&date=lte.${annee}-12-31`;
+  if (mode==='individuel' && empId) params += `&employe_id=eq.${empId}`;
+
+  try {
+    const data = await api.get('saisies', params);
     const totalDep = data.length;
-    const totalHeures = data.reduce((s, r) => s + (parseFloat(r.amplitude) || 0), 0);
-    const ampMoy = totalDep > 0 ? totalHeures / totalDep : 0;
-    const employes = [...new Set(data.map(r => r.employe_nom))];
+    const totalH = data.reduce((s,r) => s+(parseFloat(r.amplitude)||0), 0);
+    const ampMoy = totalDep > 0 ? totalH/totalDep : 0;
+    const employes = [...new Set(data.map(r=>r.employe_nom))];
 
     document.getElementById('stats-global').innerHTML = `
       <div class="stat-card"><div class="stat-value">${totalDep}</div><div class="stat-label">Déplacements</div></div>
-      <div class="stat-card"><div class="stat-value">${Math.round(totalHeures)}h</div><div class="stat-label">Heures totales</div></div>
+      <div class="stat-card"><div class="stat-value">${Math.round(totalH)}h</div><div class="stat-label">Heures totales</div></div>
       <div class="stat-card"><div class="stat-value">${ampMoy.toFixed(1)}h</div><div class="stat-label">Amplitude moy.</div></div>
-      <div class="stat-card"><div class="stat-value">${employes.length}</div><div class="stat-label">Actifs</div></div>
-    `;
+      <div class="stat-card"><div class="stat-value">${employes.length}</div><div class="stat-label">Actifs</div></div>`;
 
-    // Chart déplacements par employé
-    const depParEmp = {};
-    const ampParEmp = {};
+    if (mode==='equipe') {
+      // Par employé
+      const depParEmp = {}, ampParEmp = {};
+      data.forEach(r => {
+        depParEmp[r.employe_nom] = (depParEmp[r.employe_nom]||0)+1;
+        ampParEmp[r.employe_nom] = (ampParEmp[r.employe_nom]||0)+(parseFloat(r.amplitude)||0);
+      });
+      const maxDep = Math.max(...Object.values(depParEmp),1);
+      document.getElementById('chart-dep-title').textContent = '🏆 Déplacements par employé';
+      document.getElementById('chart-deplacements').innerHTML = Object.entries(depParEmp).sort((a,b)=>b[1]-a[1]).map(([n,v])=>barRow(n,v,maxDep,v+' dép.')).join('');
+      const maxAmp = Math.max(...Object.entries(ampParEmp).map(([n,t])=>t/(depParEmp[n]||1)),1);
+      document.getElementById('chart-amp-title').textContent = '⏱️ Amplitude moyenne par employé';
+      document.getElementById('chart-amplitude').innerHTML = Object.entries(ampParEmp).sort((a,b)=>(b[1]/(depParEmp[b[0]]||1))-(a[1]/(depParEmp[a[0]]||1))).map(([n,t])=>{const moy=t/(depParEmp[n]||1);return barRow(n,moy,maxAmp,moy.toFixed(1)+'h');}).join('');
+    } else {
+      // Individuel
+      const nom = data.length > 0 ? data[0].employe_nom : 'Employé';
+      document.getElementById('chart-dep-title').textContent = `📋 Déplacements — ${nom}`;
+      document.getElementById('chart-amp-title').textContent = `⏱️ Amplitude — ${nom}`;
+    }
+
+    // Par période
+    const parPeriode = {};
+    const moisL = {1:'Jan',2:'Fév',3:'Mar',4:'Avr',5:'Mai',6:'Jun',7:'Jul',8:'Aoû',9:'Sep',10:'Oct',11:'Nov',12:'Déc'};
     data.forEach(r => {
-      depParEmp[r.employe_nom] = (depParEmp[r.employe_nom] || 0) + 1;
-      ampParEmp[r.employe_nom] = (ampParEmp[r.employe_nom] || 0) + (parseFloat(r.amplitude) || 0);
+      const key = periode==='mois' ? r.date?.slice(0,7) : r.date?.slice(0,4);
+      if (key) parPeriode[key] = (parPeriode[key]||0)+1;
     });
-
-    const maxDep = Math.max(...Object.values(depParEmp), 1);
-    document.getElementById('chart-deplacements').innerHTML = Object.entries(depParEmp)
-      .sort((a,b) => b[1]-a[1])
-      .map(([nom, val]) => barRow(nom, val, maxDep, val + ' dép.'))
-      .join('');
-
-    const maxAmp = Math.max(...Object.values(ampParEmp).map(v => v / depParEmp[Object.keys(depParEmp).find(k => k)]), 1);
-    document.getElementById('chart-amplitude').innerHTML = Object.entries(ampParEmp)
-      .sort((a,b) => (b[1]/depParEmp[b[0]]) - (a[1]/depParEmp[a[0]]))
-      .map(([nom, total]) => {
-        const moy = total / depParEmp[nom];
-        const maxVal = Math.max(...Object.entries(ampParEmp).map(([n, t]) => t / depParEmp[n]), 1);
-        return barRow(nom, moy, maxVal, moy.toFixed(1) + 'h moy');
-      })
-      .join('');
-
-    // Chart par mois
-    const parMois = {};
-    data.forEach(r => {
-      const m = r.date.slice(0, 7);
-      parMois[m] = (parMois[m] || 0) + 1;
-    });
-    const maxMois = Math.max(...Object.values(parMois), 1);
-    const moisLabels = { '01':'Jan','02':'Fév','03':'Mar','04':'Avr','05':'Mai','06':'Jun','07':'Jul','08':'Aoû','09':'Sep','10':'Oct','11':'Nov','12':'Déc' };
-    document.getElementById('chart-mois').innerHTML = Object.entries(parMois)
-      .sort((a,b) => a[0].localeCompare(b[0]))
-      .slice(-8)
-      .map(([mois, val]) => {
-        const [y, m] = mois.split('-');
-        const label = moisLabels[m] + ' ' + y.slice(2);
-        return barRow(label, val, maxMois, val + ' dép.');
-      })
-      .join('');
-
-  } catch(err) {
-    console.error(err);
-  }
+    const maxP = Math.max(...Object.values(parPeriode),1);
+    document.getElementById('chart-periode-title').textContent = periode==='mois' ? '📅 Activité par mois' : '📅 Activité par année';
+    document.getElementById('chart-periode').innerHTML = Object.entries(parPeriode).sort((a,b)=>a[0].localeCompare(b[0])).map(([k,v])=>{
+      let label = k;
+      if (periode==='mois') { const [y,m]=k.split('-'); label=moisL[parseInt(m)]+' '+y.slice(2); }
+      return barRow(label,v,maxP,v+' dép.');
+    }).join('');
+  } catch(e) { console.error(e); }
 }
 
 function barRow(label, val, max, displayVal) {
-  const pct = Math.max(5, Math.round((val / max) * 100));
+  const pct = Math.max(5, Math.round((val/max)*100));
   return `<div class="chart-bar-row">
     <div class="chart-label" title="${label}">${label}</div>
-    <div class="chart-bar-bg">
-      <div class="chart-bar-fill" style="width:${pct}%">
-        <span class="chart-bar-val">${displayVal}</span>
-      </div>
-    </div>
+    <div class="chart-bar-bg"><div class="chart-bar-fill" style="width:${pct}%"><span class="chart-bar-val">${displayVal}</span></div></div>
   </div>`;
 }
 
-// ══════════════════════════════════════════
-// ADMIN — EMPLOYÉS
-// ══════════════════════════════════════════
+// ── EQUIPE ──
 async function loadEmployesList() {
-  const container = document.getElementById('employes-list');
-  container.innerHTML = '<div class="loader"><div class="spinner"></div> Chargement...</div>';
+  const c = document.getElementById('employes-list');
+  c.innerHTML = '<div class="loader"><div class="spinner"></div></div>';
   try {
-    allEmployes = await api.get('employes', 'order=nom.asc&select=*');
-    if (allEmployes.length === 0) {
-      container.innerHTML = '<div class="empty-state"><p>Aucun employé.</p></div>';
-      return;
-    }
-    container.innerHTML = allEmployes.map(e => `
+    const emp = await api.get('employes', 'order=nom.asc&select=*');
+    c.innerHTML = emp.map(e => `
       <div class="employe-row">
         <div class="employe-info">
-          <span class="employe-name">${e.nom} ${e.role === 'admin' ? '⭐' : ''}</span>
-          <span class="employe-pin">PIN : ${'•'.repeat(e.pin.length)} · ${e.actif ? '✅ Actif' : '❌ Inactif'}</span>
+          <span class="employe-name">${e.nom} ${e.role==='admin'?'⭐':''}</span>
+          <span class="employe-pin">PIN : ${'•'.repeat(e.pin.length)} · ${e.actif?'✅ Actif':'❌ Inactif'}</span>
         </div>
         <div class="employe-actions">
-          ${e.role !== 'admin' ? `<button class="btn-sm btn-sm-danger" onclick="confirmDelete('${e.id}','${e.nom}')">Supprimer</button>` : ''}
+          <button class="btn-sm btn-sm-warning" onclick="openEditPin('${e.id}','${e.nom}')">🔑 PIN</button>
+          ${e.role!=='admin'?`<button class="btn-sm btn-sm-danger" onclick="toggleActif('${e.id}',${e.actif},'${e.nom}')">${e.actif?'Désactiver':'Activer'}</button>`:''}
         </div>
-      </div>
-    `).join('');
-  } catch(err) {
-    container.innerHTML = '<div class="empty-state"><p>Erreur de chargement.</p></div>';
-  }
+      </div>`).join('');
+  } catch(e) { c.innerHTML='<p>Erreur</p>'; }
 }
 
 async function addEmploye() {
   const nom = document.getElementById('new-nom').value.trim();
   const pin = document.getElementById('new-pin').value.trim();
-  if (!nom || !pin || pin.length < 4) {
-    showAlert('emp-error', 'Nom et PIN (min 4 chiffres) requis.');
-    return;
-  }
-  if (!/^\d+$/.test(pin)) {
-    showAlert('emp-error', 'Le PIN doit contenir uniquement des chiffres.');
-    return;
-  }
+  if (!nom || pin.length < 4 || !/^\d+$/.test(pin)) { showAlert('emp-error','Nom et PIN (min 4 chiffres) requis.'); return; }
   try {
-    await api.post('employes', { nom, pin, role: 'employe', actif: true });
-    document.getElementById('new-nom').value = '';
-    document.getElementById('new-pin').value = '';
-    showAlert('emp-success', `✅ ${nom} ajouté avec succès !`);
+    await api.post('employes', {nom, pin, role:'employe', actif:true});
+    document.getElementById('new-nom').value=''; document.getElementById('new-pin').value='';
+    showAlert('emp-success',`✅ ${nom} ajouté !`);
     await loadEmployesList();
-    // Refresh login select
     const sel = document.getElementById('login-select');
-    const lastVal = sel.value;
-    while (sel.options.length > 1) sel.remove(1);
+    while(sel.options.length>1) sel.remove(1);
     await loadEmployesLogin();
-    // Refresh filter
-    const filterSel = document.getElementById('filter-employe');
-    while (filterSel.options.length > 1) filterSel.remove(1);
-    await loadFilterEmployes();
-  } catch(err) {
-    showAlert('emp-error', 'Erreur : ' + err.message);
-  }
+  } catch(e) { showAlert('emp-error','Erreur : '+e.message); }
 }
 
-function confirmDelete(id, nom) {
-  document.getElementById('modal-title').textContent = `Supprimer ${nom} ?`;
-  document.getElementById('modal-body').textContent = `Cette action supprimera l'employé ${nom}. Ses saisies seront conservées.`;
-  document.getElementById('modal-confirm-btn').onclick = () => deleteEmploye(id, nom);
-  document.getElementById('modal-confirm').classList.add('show');
+function openEditPin(id, nom) {
+  document.getElementById('edit-pin-id').value = id;
+  document.getElementById('edit-pin-nom-label').textContent = `PIN de ${nom}`;
+  document.getElementById('edit-pin-val').value = '';
+  document.getElementById('modal-edit-pin').classList.add('show');
 }
 
-async function deleteEmploye(id, nom) {
-  closeModal();
+async function savePin() {
+  const id = document.getElementById('edit-pin-id').value;
+  const pin = document.getElementById('edit-pin-val').value.trim();
+  if (pin.length < 4 || !/^\d+$/.test(pin)) { alert('PIN invalide (min 4 chiffres).'); return; }
   try {
-    await api.patch('employes', id, { actif: false });
-    showAlert('emp-success', `${nom} désactivé.`);
+    await api.patch('employes', id, {pin});
+    closeModal('modal-edit-pin');
     await loadEmployesList();
-  } catch(err) {
-    showAlert('emp-error', 'Erreur : ' + err.message);
-  }
+    alert('✅ PIN modifié !');
+  } catch(e) { alert('Erreur'); }
 }
 
-function closeModal() {
-  document.getElementById('modal-confirm').classList.remove('show');
+async function toggleActif(id, actif, nom) {
+  if (!confirm(`${actif?'Désactiver':'Activer'} ${nom} ?`)) return;
+  try { await api.patch('employes', id, {actif:!actif}); await loadEmployesList(); } catch(e) {}
 }
 
-// ══════════════════════════════════════════
-// EXPORT CSV
-// ══════════════════════════════════════════
+// ── EXPORT CSV ──
 function exportCSV() {
-  if (allSaisies.length === 0) { alert('Aucune donnée à exporter.'); return; }
-  const headers = ['Employé','Date','Départ','Retour','Amplitude (h)','Site','Ville','Camion','Seul','Avec qui','Commentaire'];
+  if (!allSaisies.length) { alert('Aucune donnée.'); return; }
+  const h = ['Employé','Date','N°DEV','Site','Ville','Camion','Matin départ','Matin fin','AM départ','AM fin','Amplitude(h)','Seul','Avec qui','Commentaire'];
   const rows = allSaisies.map(s => [
-    s.employe_nom,
-    s.date,
-    s.heure_depart?.slice(0,5) || '',
-    s.heure_retour?.slice(0,5) || '',
-    parseFloat(s.amplitude || 0).toFixed(2),
-    s.site,
-    s.ville || '',
-    s.camion || '',
-    s.seul ? 'Oui' : 'Non',
-    s.avec_qui || '',
-    s.commentaire || ''
+    s.employe_nom, s.date, s.numero_dev||'', s.site, s.ville||'', s.camion||'',
+    s.matin_depart?.slice(0,5)||'', s.matin_fin?.slice(0,5)||'',
+    s.apmidi_depart?.slice(0,5)||'', s.apmidi_fin?.slice(0,5)||'',
+    parseFloat(s.amplitude||0).toFixed(2), s.seul?'Oui':'Non', s.avec_qui||'', s.commentaire||''
   ]);
-
-  const csv = [headers, ...rows].map(r => r.map(c => `"${String(c).replace(/"/g,'""')}"`).join(';')).join('\n');
-  const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8' });
-  const url = URL.createObjectURL(blob);
+  const csv = [h,...rows].map(r=>r.map(c=>`"${String(c).replace(/"/g,'""')}"`).join(';')).join('\n');
   const a = document.createElement('a');
-  a.href = url;
-  a.download = `extinctium_deplacements_${new Date().toISOString().slice(0,10)}.csv`;
+  a.href = URL.createObjectURL(new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8'}));
+  a.download = `extinctium_${new Date().toISOString().slice(0,10)}.csv`;
   a.click();
-  URL.revokeObjectURL(url);
 }
 
-// ══════════════════════════════════════════
-// UTILS
-// ══════════════════════════════════════════
+// ── UTILS ──
+function closeModal(id) { document.getElementById(id).classList.remove('show'); }
 function showAlert(id, msg) {
   const el = document.getElementById(id);
-  el.textContent = msg;
-  el.classList.add('show');
-  setTimeout(() => el.classList.remove('show'), 4000);
+  el.textContent = msg; el.classList.add('show');
+  setTimeout(()=>el.classList.remove('show'), 4000);
 }
 </script>
 </body>
