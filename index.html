@@ -96,6 +96,7 @@ textarea { resize: vertical; min-height: 70px; }
 /* SAISIE ITEM */
 .saisie-item { background: var(--gris-moyen); border-radius: 10px; padding: 14px 16px; margin-bottom: 10px; border: 1px solid var(--gris-clair); border-left: 4px solid var(--rouge); }
 .saisie-item.alerte-10h { border-left-color: var(--jaune); }
+.saisie-item.traite { border-left-color: var(--vert); opacity: 0.75; }
 .saisie-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; gap: 8px; }
 .saisie-nom { font-weight: 700; color: var(--blanc-pur); font-size: 15px; }
 .saisie-date { font-size: 12px; color: var(--gris-texte); }
@@ -109,6 +110,13 @@ textarea { resize: vertical; min-height: 70px; }
 .tag.jaune { background: rgba(243,156,18,0.2); color: var(--jaune); }
 .amplitude-badge { background: var(--rouge); color: white; font-weight: 700; padding: 4px 12px; border-radius: 20px; font-size: 13px; white-space: nowrap; }
 .amplitude-badge.alerte { background: var(--jaune); color: #000; }
+
+/* HORAIRES GRANDS */
+.horaires-display { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 8px; }
+.horaire-block { background: rgba(41,128,185,0.15); border: 1px solid rgba(41,128,185,0.4); border-radius: 8px; padding: 6px 12px; display: flex; flex-direction: column; align-items: center; }
+.horaire-block-label { font-size: 9px; color: var(--gris-texte); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 2px; }
+.horaire-block-time { font-size: 18px; font-weight: 800; color: var(--blanc-pur); letter-spacing: 1px; font-variant-numeric: tabular-nums; }
+.horaire-arrow { font-size: 14px; color: var(--gris-texte); align-self: center; margin-top: 12px; }
 
 /* RADIO */
 .radio-group { display: flex; gap: 10px; }
@@ -352,12 +360,24 @@ textarea { resize: vertical; min-height: 70px; }
     <div class="nav-tab" onclick="adminTab('stats')" id="tab-stats">📈 Stats</div>
     <div class="nav-tab" onclick="adminTab('alertes')" id="tab-alertes">⚠️ Alertes<span class="badge" id="badge-alertes" style="display:none">0</span></div>
     <div class="nav-tab" onclick="adminTab('equipe')" id="tab-equipe">👥 Équipe</div>
+    <div class="nav-tab" onclick="adminTab('saisie-admin')" id="tab-saisie-admin">➕ Saisie</div>
   </div>
 
   <!-- TABLEAU -->
   <div id="admin-tableau">
     <div class="filter-bar">
       <select id="filter-employe" onchange="loadAdminSaisies()"><option value="">Tous les employés</option></select>
+      <select id="filter-traite" onchange="loadAdminSaisies()">
+        <option value="false">⏳ À traiter</option>
+        <option value="true">✅ Traités</option>
+        <option value="">Tous</option>
+      </select>
+      <select id="filter-periode" onchange="loadAdminSaisies()">
+        <option value="">Toutes les périodes</option>
+        <option value="semaine">Cette semaine</option>
+        <option value="mois">Ce mois</option>
+        <option value="annee">Cette année</option>
+      </select>
       <select id="filter-mois" onchange="loadAdminSaisies()"><option value="">Tous les mois</option></select>
     </div>
     <div class="export-row">
@@ -401,6 +421,54 @@ textarea { resize: vertical; min-height: 70px; }
     <div id="liste-alertes-10h"><div class="loader"><div class="spinner"></div></div></div>
     <div class="card-title" style="margin:20px 0 16px; font-size:15px">📝 Demandes de modification</div>
     <div id="liste-demandes"><div class="loader"><div class="spinner"></div></div></div>
+  </div>
+
+  <!-- SAISIE ADMIN -->
+  <div id="admin-saisie-admin" style="display:none">
+    <div class="section-title">➕ Nouvelle saisie</div>
+    <div class="section-sub">Saisie depuis le dashboard admin</div>
+    <div class="card">
+      <div class="form-group">
+        <label>📅 Date</label>
+        <input type="date" id="as-date">
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>🔢 N° DEV</label><input type="text" id="as-dev" placeholder="Ex: DEV-001"></div>
+        <div class="form-group"><label>📍 Site</label><input type="text" id="as-site" placeholder="Ex: Site EDF"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>🏙️ Ville</label><input type="text" id="as-ville" placeholder="Ex: Orléans"></div>
+        <div class="form-group"><label>🚛 Camion</label><input type="text" id="as-camion" placeholder="Ex: EX-01"></div>
+      </div>
+      <div style="margin-bottom:12px">
+        <div class="card-title" style="margin-bottom:10px">🕐 Horaires</div>
+        <div class="horaires-grid">
+          <div class="horaire-bloc"><div class="horaire-bloc-title">☀️ Matin — Départ</div><input type="time" id="as-matin-dep"></div>
+          <div class="horaire-bloc"><div class="horaire-bloc-title">🍽️ Matin — Fin</div><input type="time" id="as-matin-fin"></div>
+          <div class="horaire-bloc"><div class="horaire-bloc-title">🔄 AM — Reprise</div><input type="time" id="as-apmidi-dep"></div>
+          <div class="horaire-bloc"><div class="horaire-bloc-title">🌙 AM — Fin</div><input type="time" id="as-apmidi-fin"></div>
+        </div>
+        <div id="as-amplitude-preview" style="display:none; margin-top:8px">
+          <span class="tag vert" style="font-size:13px; padding:8px 14px">⏱️ Amplitude : <strong id="as-amp-val">0h00</strong></span>
+          <span class="tag jaune" id="as-alerte-10h" style="display:none; font-size:13px; padding:8px 14px">⚠️ Dépasse 10h !</span>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>👥 Déplacement</label>
+        <div class="radio-group">
+          <div class="radio-option selected" id="as-opt-seul" onclick="selectPresenceAdmin('seul')">Seul</div>
+          <div class="radio-option" id="as-opt-equipe" onclick="selectPresenceAdmin('equipe')">En équipe</div>
+        </div>
+      </div>
+      <div class="form-group" id="as-avec-qui-group" style="display:none">
+        <label>👤 Avec qui ?</label>
+        <input type="text" id="as-avec-qui" placeholder="Prénom(s) des collègues">
+      </div>
+      <div class="form-group"><label>💬 Commentaire</label><textarea id="as-commentaire" placeholder="Informations complémentaires..."></textarea></div>
+    </div>
+    <div class="alert alert-error" id="as-error"></div>
+    <div class="alert alert-success" id="as-success"></div>
+    <button class="btn btn-primary" onclick="saveAdminSaisie()">💾 Enregistrer</button>
   </div>
 
   <!-- EQUIPE -->
@@ -747,8 +815,23 @@ async function loadAdminSaisies() {
   let params = 'order=date.desc&select=*';
   const ef = document.getElementById('filter-employe').value;
   const mf = document.getElementById('filter-mois').value;
+  const pf = document.getElementById('filter-periode').value;
+  const tf = document.getElementById('filter-traite').value;
   if (ef) params += `&employe_id=eq.${ef}`;
-  if (mf) { const [y,m] = mf.split('-'); params += `&date=gte.${y}-${m}-01&date=lte.${y}-${m}-${new Date(y,m,0).getDate()}`; }
+  if (tf === 'true') params += '&traite=eq.true';
+  else if (tf === 'false') params += '&or=(traite.eq.false,traite.is.null)';
+  if (pf === 'semaine') {
+    const now = new Date();
+    const day = now.getDay() || 7;
+    const lundi = new Date(now); lundi.setDate(now.getDate() - day + 1);
+    const dimanche = new Date(lundi); dimanche.setDate(lundi.getDate() + 6);
+    params += `&date=gte.${lundi.toISOString().split('T')[0]}&date=lte.${dimanche.toISOString().split('T')[0]}`;
+  } else if (pf === 'mois') {
+    const now = new Date();
+    params += `&date=gte.${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-01&date=lte.${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${new Date(now.getFullYear(),now.getMonth()+1,0).getDate()}`;
+  } else if (pf === 'annee') {
+    params += `&date=gte.${new Date().getFullYear()}-01-01&date=lte.${new Date().getFullYear()}-12-31`;
+  } else if (mf) { const [y,m] = mf.split('-'); params += `&date=gte.${y}-${m}-01&date=lte.${y}-${m}-${new Date(y,m,0).getDate()}`; }
   try {
     allSaisies = await api.get('saisies', params);
     c.innerHTML = allSaisies.length === 0
@@ -764,12 +847,27 @@ function renderSaisieCard(s, isAdmin, canDemande) {
   const alerte = amp > 10;
   const dateStr = s.date ? new Date(s.date+'T12:00:00').toLocaleDateString('fr-FR',{weekday:'short',day:'numeric',month:'short'}) : '';
 
-  const horaires = [];
-  if (s.matin_depart) horaires.push(`☀️ ${s.matin_depart.slice(0,5)}→${(s.matin_fin||'?').slice(0,5)}`);
-  if (s.apmidi_depart) horaires.push(`🔄 ${s.apmidi_depart.slice(0,5)}→${(s.apmidi_fin||'?').slice(0,5)}`);
-  if (!horaires.length && s.heure_depart) horaires.push(`🕐 ${s.heure_depart.slice(0,5)}→${(s.heure_retour||'?').slice(0,5)}`);
+  // Build big horaires display
+  let horairesHtml = '<div class="horaires-display">';
+  if (s.matin_depart) {
+    horairesHtml += `<div class="horaire-block"><div class="horaire-block-label">☀️ Matin départ</div><div class="horaire-block-time">${s.matin_depart.slice(0,5)}</div></div>`;
+    horairesHtml += `<div class="horaire-arrow">→</div>`;
+    horairesHtml += `<div class="horaire-block"><div class="horaire-block-label">🍽️ Matin fin</div><div class="horaire-block-time">${(s.matin_fin||'?').slice(0,5)}</div></div>`;
+  }
+  if (s.apmidi_depart) {
+    if (s.matin_depart) horairesHtml += `<div style="width:100%;border-top:1px solid #444;margin:4px 0"></div>`;
+    horairesHtml += `<div class="horaire-block"><div class="horaire-block-label">🔄 AM reprise</div><div class="horaire-block-time">${s.apmidi_depart.slice(0,5)}</div></div>`;
+    horairesHtml += `<div class="horaire-arrow">→</div>`;
+    horairesHtml += `<div class="horaire-block"><div class="horaire-block-label">🌙 AM fin</div><div class="horaire-block-time">${(s.apmidi_fin||'?').slice(0,5)}</div></div>`;
+  }
+  if (!s.matin_depart && !s.apmidi_depart && s.heure_depart) {
+    horairesHtml += `<div class="horaire-block"><div class="horaire-block-label">🕐 Départ</div><div class="horaire-block-time">${s.heure_depart.slice(0,5)}</div></div>`;
+    horairesHtml += `<div class="horaire-arrow">→</div>`;
+    horairesHtml += `<div class="horaire-block"><div class="horaire-block-label">🕐 Retour</div><div class="horaire-block-time">${(s.heure_retour||'?').slice(0,5)}</div></div>`;
+  }
+  horairesHtml += '</div>';
 
-  return `<div class="saisie-item ${alerte?'alerte-10h':''}">
+  return `<div class="saisie-item ${alerte?'alerte-10h':''} ${s.traite?'traite':''}">
     <div class="saisie-header">
       <div>
         ${isAdmin ? `<div class="saisie-nom">👤 ${s.employe_nom}</div>` : ''}
@@ -777,8 +875,8 @@ function renderSaisieCard(s, isAdmin, canDemande) {
       </div>
       <span class="amplitude-badge ${alerte?'alerte':''}">${alerte?'⚠️':''} ${ampStr}</span>
     </div>
+    ${horairesHtml}
     <div class="saisie-infos">
-      ${horaires.map(h=>`<span class="tag bleu">${h}</span>`).join('')}
       ${s.numero_dev ? `<span class="tag orange">🔢 ${s.numero_dev}</span>` : ''}
       <span class="tag rouge">📍 ${s.site}</span>
       ${s.ville ? `<span class="tag">🏙️ ${s.ville}</span>` : ''}
@@ -787,6 +885,8 @@ function renderSaisieCard(s, isAdmin, canDemande) {
       ${s.commentaire ? `<span class="tag">💬 ${s.commentaire}</span>` : ''}
     </div>
     <div class="saisie-actions">
+      ${isAdmin && !s.traite ? `<button class="btn-sm btn-sm-success" onclick="marquerTraite('${s.id}')">✅ Traité RH</button>` : ''}
+      ${isAdmin && s.traite ? `<span class="tag vert" style="font-size:11px">✅ Saisi RH</span>` : ''}
       ${isAdmin ? `<button class="btn-sm btn-sm-warning" onclick="openEditSaisie('${s.id}')">✏️ Modifier</button>` : ''}
       ${isAdmin ? `<button class="btn-sm btn-sm-danger" onclick="confirmDeleteSaisie('${s.id}')">🗑️ Supprimer</button>` : ''}
       ${canDemande ? `<button class="btn-sm btn-sm-warning" onclick="openDemande('${s.id}')">📝 Demander correction</button>` : ''}
@@ -796,13 +896,20 @@ function renderSaisieCard(s, isAdmin, canDemande) {
 
 // ── ADMIN TABS ──
 function adminTab(tab) {
-  ['tableau','stats','alertes','equipe'].forEach(t => {
+  ['tableau','stats','alertes','equipe','saisie-admin'].forEach(t => {
     document.getElementById('tab-'+t).classList.toggle('active', t===tab);
     document.getElementById('admin-'+t).style.display = t===tab ? 'block' : 'none';
   });
   if (tab==='stats') loadStats();
   if (tab==='equipe') loadEmployesList();
   if (tab==='alertes') loadAlertes();
+  if (tab==='saisie-admin') {
+    document.getElementById('as-date').value = new Date().toISOString().split('T')[0];
+    ['as-matin-dep','as-matin-fin','as-apmidi-dep','as-apmidi-fin'].forEach(id => {
+      document.getElementById(id).removeEventListener('change', calcAmplitudeAdmin);
+      document.getElementById(id).addEventListener('change', calcAmplitudeAdmin);
+    });
+  }
 }
 
 // ── ALERTES ──
@@ -1095,6 +1202,67 @@ async function savePin() {
 async function toggleActif(id, actif, nom) {
   if (!confirm(`${actif?'Désactiver':'Activer'} ${nom} ?`)) return;
   try { await api.patch('employes', id, {actif:!actif}); await loadEmployesList(); } catch(e) {}
+}
+
+// ── ADMIN SAISIE ──
+let modePresenceAdmin = 'seul';
+function selectPresenceAdmin(mode) {
+  modePresenceAdmin = mode;
+  document.getElementById('as-opt-seul').classList.toggle('selected', mode==='seul');
+  document.getElementById('as-opt-equipe').classList.toggle('selected', mode==='equipe');
+  document.getElementById('as-avec-qui-group').style.display = mode==='equipe' ? 'block' : 'none';
+}
+function calcAmplitudeAdmin() {
+  const md = document.getElementById('as-matin-dep').value;
+  const mf = document.getElementById('as-matin-fin').value;
+  const ad = document.getElementById('as-apmidi-dep').value;
+  const af = document.getElementById('as-apmidi-fin').value;
+  if (!md && !af) { document.getElementById('as-amplitude-preview').style.display='none'; return; }
+  let total = 0;
+  if (md && mf) total += timeDiff(md, mf);
+  if (ad && af) total += timeDiff(ad, af);
+  const h = Math.floor(total/60), m = total%60;
+  document.getElementById('as-amp-val').textContent = `${h}h${String(m).padStart(2,'0')}`;
+  document.getElementById('as-amplitude-preview').style.display = 'block';
+  document.getElementById('as-alerte-10h').style.display = total > 600 ? 'inline-flex' : 'none';
+}
+async function saveAdminSaisie() {
+  const date = document.getElementById('as-date').value;
+  const site = document.getElementById('as-site').value.trim();
+  const md = document.getElementById('as-matin-dep').value;
+  const mf = document.getElementById('as-matin-fin').value;
+  const ad = document.getElementById('as-apmidi-dep').value;
+  const af = document.getElementById('as-apmidi-fin').value;
+  if (!date || !site || (!md && !ad)) { showAlert('as-error','Date, site et au moins une plage horaire requis.'); return; }
+  const amplitude = calcAmplitudeVal(md, mf, ad, af);
+  try {
+    await api.post('saisies', {
+      employe_id: currentUser.id, employe_nom: currentUser.nom, date,
+      heure_depart: md||null, heure_retour: af||ad||null,
+      matin_depart: md||null, matin_fin: mf||null,
+      apmidi_depart: ad||null, apmidi_fin: af||null, amplitude, site,
+      ville: document.getElementById('as-ville').value.trim()||null,
+      camion: document.getElementById('as-camion').value.trim()||null,
+      numero_dev: document.getElementById('as-dev').value.trim()||null,
+      avec_qui: modePresenceAdmin==='equipe' ? document.getElementById('as-avec-qui').value.trim()||null : null,
+      seul: modePresenceAdmin==='seul',
+      commentaire: document.getElementById('as-commentaire').value.trim()||null
+    });
+    showAlert('as-success', '✅ Déplacement enregistré !');
+    ['as-dev','as-site','as-ville','as-camion','as-avec-qui','as-commentaire','as-matin-dep','as-matin-fin','as-apmidi-dep','as-apmidi-fin'].forEach(id => document.getElementById(id).value='');
+    document.getElementById('as-date').value = new Date().toISOString().split('T')[0];
+    document.getElementById('as-amplitude-preview').style.display='none';
+    selectPresenceAdmin('seul');
+    setTimeout(() => { adminTab('tableau'); loadAdminSaisies(); }, 2000);
+  } catch(e) { showAlert('as-error','Erreur : '+e.message); }
+}
+
+// ── MARQUER TRAITÉ ──
+async function marquerTraite(id) {
+  try {
+    await api.patch('saisies', id, { traite: true });
+    loadAdminSaisies();
+  } catch(e) { alert('Erreur : '+e.message); }
 }
 
 // ── EXPORT CSV ──
